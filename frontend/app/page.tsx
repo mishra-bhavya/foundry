@@ -25,11 +25,12 @@ export default function Home() {
 
   // Track which decision was selected
   const [selectedDecision, setSelectedDecision] = useState<number | null>(null);
+  const [currentStage, setCurrentStage] = useState<number>(1);
 
   // Fetch stage data on first load
   useEffect(() => {
   async function fetchStage() {
-    const res = await fetch("http://127.0.0.1:8000/stage/1");
+    const res = await fetch("http://127.0.0.1:8000/stage/${currentStage}");
     const data = await res.json();
     setStage(data);
   }
@@ -47,7 +48,7 @@ export default function Home() {
   if (savedDecision) {
     setSelectedDecision(Number(savedDecision));
   }
-}, []);
+}, [currentStage]);
 
   useEffect(() => {
   localStorage.setItem("skills", JSON.stringify(skills));
@@ -127,6 +128,23 @@ useEffect(() => {
           }
         </p>
       )}
+
+      {selectedDecision !== null && (
+      <button
+      style={{
+        marginTop: "1rem",
+        padding: "0.5rem 1rem",
+        display: "block"
+      }}
+      onClick={() => {
+        setSelectedDecision(null);
+        setCurrentStage((prev) => prev + 1);
+      }}
+  >
+      Continue to Next Stage
+        </button>
+      )}
+
     </main>
   );
 }
