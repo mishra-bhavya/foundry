@@ -11,8 +11,10 @@ type SkillState = {
 };
 
 export default function Home() {
+  // Stage data from backend
   const [stage, setStage] = useState<any>(null);
 
+  // Player skill state
   const [skills, setSkills] = useState<SkillState>({
     product_thinking: 0,
     technical_judgment: 0,
@@ -21,6 +23,10 @@ export default function Home() {
     execution: 0,
   });
 
+  // Track which decision was selected
+  const [selectedDecision, setSelectedDecision] = useState<number | null>(null);
+
+  // Fetch stage data on first load
   useEffect(() => {
     async function fetchStage() {
       const res = await fetch("http://127.0.0.1:8000/stage/1");
@@ -31,7 +37,12 @@ export default function Home() {
     fetchStage();
   }, []);
 
-  function handleDecision(impact: SkillState) {
+  // Handle decision click
+  function handleDecision(decisionId: number, impact: SkillState) {
+    // Prevent multiple selections
+    if (selectedDecision !== null) return;
+
+    // Update skills safely using previous state
     setSkills((prev) => ({
       product_thinking: prev.product_thinking + impact.product_thinking,
       technical_judgment:
@@ -41,8 +52,12 @@ export default function Home() {
         prev.resource_management + impact.resource_management,
       execution: prev.execution + impact.execution,
     }));
+
+    // Mark this decision as selected
+    setSelectedDecision(decisionId);
   }
 
+  // Show loading while stage is not yet fetched
   if (!stage) return <p>Loading...</p>;
 
   return (
@@ -63,16 +78,30 @@ export default function Home() {
       {stage.decisions.map((decision: any) => (
         <button
           key={decision.id}
-          onClick={() => handleDecision(decision.impact)}
+          onClick={() => handleDecision(decision.id, decision.impact)}
+          disabled={selectedDecision !== null}
           style={{
             display: "block",
             margin: "1rem 0",
             padding: "0.5rem 1rem",
+            opacity: selectedDecision !== null ? 0.6 : 1,
           }}
         >
           {decision.text}
         </button>
       ))}
+
+      {/* Feedback section */}
+      {selectedDecision !== null && (
+        <p style={{ marginTop: "1rem", fontWeight: "bold" }}>
+          You chose:{" "}
+          {
+            stage.decisions.find(
+              (d: any) => d.id === selectedDecision
+            ).text
+          }
+        </p>
+      )}
     </main>
   );
 }
