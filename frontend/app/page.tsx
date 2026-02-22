@@ -28,14 +28,39 @@ export default function Home() {
 
   // Fetch stage data on first load
   useEffect(() => {
-    async function fetchStage() {
-      const res = await fetch("http://127.0.0.1:8000/stage/1");
-      const data = await res.json();
-      setStage(data);
-    }
+  async function fetchStage() {
+    const res = await fetch("http://127.0.0.1:8000/stage/1");
+    const data = await res.json();
+    setStage(data);
+  }
 
-    fetchStage();
-  }, []);
+  fetchStage();
+
+  // Load saved skills
+  const savedSkills = localStorage.getItem("skills");
+  const savedDecision = localStorage.getItem("selectedDecision");
+
+  if (savedSkills) {
+    setSkills(JSON.parse(savedSkills));
+  }
+
+  if (savedDecision) {
+    setSelectedDecision(Number(savedDecision));
+  }
+}, []);
+
+  useEffect(() => {
+  localStorage.setItem("skills", JSON.stringify(skills));
+}, [skills]);
+
+useEffect(() => {
+  if (selectedDecision !== null) {
+    localStorage.setItem(
+      "selectedDecision",
+      selectedDecision.toString()
+    );
+  }
+}, [selectedDecision]);
 
   // Handle decision click
   function handleDecision(decisionId: number, impact: SkillState) {
