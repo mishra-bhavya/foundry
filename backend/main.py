@@ -66,6 +66,47 @@ stage_1 = {
     ]
 }
 
+stage_2 = {
+    "id": 2,
+    "title": "Internal Friction",
+    "description": "After committing to your approach, tensions rise within the team. One teammate feels ignored. Another thinks you're playing too safe. Productivity starts slipping.",
+    "decisions": [
+        {
+            "id": "A",
+            "text": "Double down on your leadership style.",
+            "impact": {
+                "product_thinking": 1,
+                "technical_judgment": -1,
+                "leadership": 2,
+                "resource_management": -1,
+                "execution": 1
+            }
+        },
+        {
+            "id": "B",
+            "text": "Call a team retrospective to realign.",
+            "impact": {
+                "product_thinking": 1,
+                "technical_judgment": 0,
+                "leadership": 1,
+                "resource_management": 2,
+                "execution": -1
+            }
+        },
+        {
+            "id": "C",
+            "text": "Ignore the conflict and focus on building.",
+            "impact": {
+                "product_thinking": 0,
+                "technical_judgment": 2,
+                "leadership": -2,
+                "resource_management": -1,
+                "execution": 2
+            }
+        }
+    ]
+}
+
 
 @app.get("/")
 def root():
@@ -75,3 +116,7 @@ def root():
 @app.get("/stage/1")
 def get_stage_1():
     return stage_1
+
+@app.get("/stage/2")
+def get_stage_2():
+    return stage_2
