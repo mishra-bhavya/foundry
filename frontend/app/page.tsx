@@ -21,8 +21,8 @@ export default function Home() {
     execution: 0,
   });
 
-  const [selectedDecision, setSelectedDecision] = useState<number | null>(null);
   const [currentStage, setCurrentStage] = useState<number>(1);
+  const [stageLocked, setStageLocked] = useState(false);
 
   /* ---------------- LOAD SAVED STAGE ON FIRST LOAD ---------------- */
   useEffect(() => {
@@ -47,10 +47,8 @@ export default function Home() {
 
         const data = await res.json();
         setStage(data);
+        setStageLocked(false);
 
-        // Reset decision when stage changes
-        setSelectedDecision(null);
-        localStorage.removeItem("selectedDecision");
       } catch (error) {
         console.error("Fetch failed:", error);
         setCurrentStage(1);
@@ -78,52 +76,64 @@ export default function Home() {
     localStorage.setItem("currentStage", currentStage.toString());
   }, [currentStage]);
 
-  /* ---------------- SAVE SELECTED DECISION ---------------- */
-  useEffect(() => {
-    if (selectedDecision !== null) {
-      localStorage.setItem(
-        "selectedDecision",
-        selectedDecision.toString()
-      );
-    }
-  }, [selectedDecision]);
 
   /* ---------------- HANDLE DECISION ---------------- */
-  function handleDecision(decisionId: number, impact: SkillState) {
-    if (selectedDecision !== null) return;
+  async function handleDecision(decisionId: number) {
+  if (stageLocked) return;
 
-    setSkills((prev) => ({
-      product_thinking: prev.product_thinking + impact.product_thinking,
-      technical_judgment:
-        prev.technical_judgment + impact.technical_judgment,
-      leadership: prev.leadership + impact.leadership,
-      resource_management:
-        prev.resource_management + impact.resource_management,
-      execution: prev.execution + impact.execution,
-    }));
+  try {
+    const res = await fetch("http://127.0.0.1:8000/decision", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        decision_id: decisionId,
+        stage_id: currentStage,
+      }),
+    });
 
-    setSelectedDecision(decisionId);
+    const data = await res.json();
+
+    if (!res.ok || !data.skills) {
+      console.error("Backend rejected decision:", data);
+      return;
+    }
+
+    setSkills(data.skills);
+    setStageLocked(true);
+
+    setTimeout(() => {
+      setCurrentStage(data.next_stage);
+    }, 800);
+
+  } catch (err) {
+    console.error("Decision failed:", err);
   }
-
-  /* ---------------- HANDLE NEXT STAGE ---------------- */
-  function handleNextStage() {
-    setCurrentStage((prev) => prev + 1);
-  }
+}
 
   /* ---------------- HANDLE RESET GAME AND SKILL SCORES ---------------- */
-  function handleResetGame() {
-  localStorage.clear();
+  async function handleResetGame() {
+  try {
+    await fetch("http://127.0.0.1:8000/reset", {
+      method: "POST",
+    });
 
-  setSkills({
-    product_thinking: 0,
-    technical_judgment: 0,
-    leadership: 0,
-    resource_management: 0,
-    execution: 0,
-  });
+    localStorage.clear();
 
-  setSelectedDecision(null);
-  setCurrentStage(1);
+    setSkills({
+      product_thinking: 0,
+      technical_judgment: 0,
+      leadership: 0,
+      resource_management: 0,
+      execution: 0,
+    });
+
+    setCurrentStage(1);
+
+  } catch (err) {
+    console.error("Reset failed:", err);
+  }
 }
 
   /* ---------------- LOADING GUARD ---------------- */
@@ -131,9 +141,6 @@ export default function Home() {
     return <p>Loading...</p>;
   }
 
-  const chosenDecision = stage.decisions.find(
-    (d: any) => d.id === selectedDecision
-  );
 
   return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
@@ -142,49 +149,29 @@ export default function Home() {
 
       <h2>Skills</h2>
       <ul>
-        <li>Product Thinking: {skills.product_thinking}</li>
-        <li>Technical Judgment: {skills.technical_judgment}</li>
-        <li>Leadership: {skills.leadership}</li>
-        <li>Resource Management: {skills.resource_management}</li>
-        <li>Execution: {skills.execution}</li>
+        <li>Product Thinking: {skills?.product_thinking ?? 0}</li>
+        <li>Technical Judgment: {skills?.technical_judgment ?? 0}</li>
+        <li>Leadership: {skills?.leadership ?? 0}</li>
+        <li>Resource Management: {skills?.resource_management ?? 0}</li>
+        <li>Execution: {skills?.execution ?? 0}</li>
       </ul>
 
       <h2>Decisions</h2>
       {stage.decisions.map((decision: any) => (
         <button
           key={decision.id}
-          onClick={() => handleDecision(decision.id, decision.impact)}
-          disabled={selectedDecision !== null}
+          onClick={() => handleDecision(decision.id)}
+          disabled={stageLocked}
           style={{
             display: "block",
             margin: "1rem 0",
             padding: "0.5rem 1rem",
-            opacity: selectedDecision !== null ? 0.6 : 1,
           }}
         >
           {decision.text}
         </button>
       ))}
 
-      {/* Feedback */}
-      {selectedDecision !== null && chosenDecision && (
-        <p style={{ marginTop: "1rem", fontWeight: "bold" }}>
-          You chose: {chosenDecision.text}
-        </p>
-      )}
-
-      {selectedDecision !== null && (
-        <button
-          style={{
-            marginTop: "1rem",
-            padding: "0.5rem 1rem",
-            display: "block",
-          }}
-          onClick={handleNextStage}
-        >
-          Continue to Next Stage
-        </button>
-      )}
 
       <button
           onClick={handleResetGame}
