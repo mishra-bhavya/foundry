@@ -88,7 +88,7 @@ stage_2 = {
                 "resource_management": -1,
                 "execution": 1
             },
-            "next_stage": 2
+            "next_stage": 3
         },
         {
             "id": 2,
@@ -100,7 +100,7 @@ stage_2 = {
                 "resource_management": 2,
                 "execution": -1
             },
-            "next_stage": 2
+            "next_stage": 3
         },
         {
             "id": 3,
@@ -112,14 +112,104 @@ stage_2 = {
                 "resource_management": -1,
                 "execution": 2
             },
-            "next_stage": 2
+            "next_stage": 3
+        }
+    ]
+}
+
+stage_3 = {
+    "stage_id": 3,
+    "title": "Demo Crisis",
+    "description": (
+        "With 4 hours left, your demo environment starts breaking. "
+        "Technical debt is surfacing and team energy is low. "
+        "You must decide how to handle the final stretch."
+    ),
+    "decisions": [
+        {
+            "id": 1,
+            "text": "Quickly patch bugs without refactoring.",
+            "impact": {
+                "execution": 3,
+                "technical_debt": 2,
+                "burnout": 2,
+                "team_morale": -2
+            },
+            "next_stage": 4,
+            "risk_factor": 1.2
+        },
+        {
+            "id": 2,
+            "text": "Refactor core components before demo.",
+            "impact": {
+                "technical_judgment": 3,
+                "execution": -2,
+                "technical_debt": -3,
+                "burnout": 1
+            },
+            "next_stage": 4,
+            "risk_factor": 1.5
+        },
+        {
+            "id": 3,
+            "text": "Cut features and stabilize what works.",
+            "impact": {
+                "resource_management": 3,
+                "execution": 1,
+                "product_thinking": -1,
+                "team_morale": 2
+            },
+            "next_stage": 4
+        }
+    ]
+}
+
+stage_4 = {
+    "stage_id": 4,
+    "title": "Final Presentation",
+    "description": (
+        "You stand before the judges. "
+        "They question scalability, technical choices, and team execution."
+    ),
+    "decisions": [
+        {
+            "id": 1,
+            "text": "Focus on product vision and user impact.",
+            "impact": {
+                "product_thinking": 3,
+                "leadership": 2,
+                "reputation": 2
+            },
+            "next_stage": 5
+        },
+        {
+            "id": 2,
+            "text": "Deep dive into technical architecture.",
+            "impact": {
+                "technical_judgment": 4,
+                "execution": 1,
+                "reputation": 1
+            },
+            "next_stage": 5
+        },
+        {
+            "id": 3,
+            "text": "Emphasize teamwork and resilience.",
+            "impact": {
+                "leadership": 3,
+                "team_morale": 2,
+                "reputation": 2
+            },
+            "next_stage": 5
         }
     ]
 }
 
 stages = {
     1: stage_1,
-    2: stage_2
+    2: stage_2,
+    3: stage_3,
+    4: stage_4
 }
 
 
@@ -165,10 +255,27 @@ def make_decision(req: DecisionRequest):
     next_stage = decision["next_stage"]
     current_stage = next_stage
 
+    game_over = False
+    reason = None
+
+    if system_state["team_morale"] <= 10:
+        game_over = True
+        reason = "Team collapsed due to low morale."
+
+    if system_state["burnout"] >= 10:
+        game_over = True
+        reason = "You burned out before finishing."
+
+    if req.stage_id == 4:
+        game_over = True
+        reason = "Hackathon completed."
+
     return {
         "skills": skill_state,
         "system": system_state,
-        "next_stage": next_stage
+        "next_stage": next_stage,
+        "game_over": game_over,
+        "reason": reason
     }
 
 @app.post("/reset")

@@ -100,6 +100,14 @@ export default function Home() {
       return;
     }
 
+    // NEW: handle game over
+    if (data.game_over) {
+      setSkills(data.skills);
+      alert(data.reason);
+      setStageLocked(true);
+      return;
+    }
+
     setSkills(data.skills);
     setStageLocked(true);
 
