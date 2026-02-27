@@ -76,41 +76,42 @@ stage_1 = {
 stage_2 = {
     "stage_id": 2,
     "title": "Internal Friction",
-    "description": "After committing to your approach, tensions rise within the team. One teammate feels ignored. Another thinks you're playing too safe. Productivity starts slipping.",
+    "description": (
+        "Tension builds inside the team. One teammate feels unheard. "
+        "Another questions your technical direction. Energy dips as deadlines loom."
+    ),
     "decisions": [
         {
             "id": 1,
-            "text": "Double down on your leadership style.",
+            "text": "Double down and assert authority.",
             "impact": {
-                "product_thinking": 1,
-                "technical_judgment": -1,
                 "leadership": 2,
-                "resource_management": -1,
-                "execution": 1
+                "execution": 1,
+                "team_morale": -6,
+                "burnout": 2
             },
             "next_stage": 3
         },
         {
             "id": 2,
-            "text": "Call a team retrospective to realign.",
+            "text": "Pause and run a structured team retrospective.",
             "impact": {
-                "product_thinking": 1,
-                "technical_judgment": 0,
                 "leadership": 1,
                 "resource_management": 2,
-                "execution": -1
+                "team_morale": 4,
+                "execution": -1,
+                "burnout": 1
             },
             "next_stage": 3
         },
         {
             "id": 3,
-            "text": "Ignore the conflict and focus on building.",
+            "text": "Ignore conflict and focus purely on output.",
             "impact": {
-                "product_thinking": 0,
                 "technical_judgment": 2,
-                "leadership": -2,
-                "resource_management": -1,
-                "execution": 2
+                "execution": 2,
+                "team_morale": -8,
+                "burnout": 3
             },
             "next_stage": 3
         }
@@ -131,11 +132,15 @@ stage_3 = {
             "text": "Quickly patch bugs without refactoring.",
             "impact": {
                 "execution": 3,
-                "technical_debt": 2,
+                "technical_debt": 5,
                 "burnout": 2,
-                "team_morale": -2
+                "team_morale": -5
             },
-            "next_stage": 4,
+            "next_stage": {
+                "default": 4,
+                "if_debt_high": 6,
+                "if_morale_low": 6
+            },
             "risk_factor": 1.2
         },
         {
@@ -147,7 +152,11 @@ stage_3 = {
                 "technical_debt": -3,
                 "burnout": 1
             },
-            "next_stage": 4,
+            "next_stage": {
+                "default": 4,
+                "if_debt_high": 6,
+                "if_morale_low": 6
+            },
             "risk_factor": 1.5
         },
         {
@@ -159,7 +168,11 @@ stage_3 = {
                 "product_thinking": -1,
                 "team_morale": 2
             },
-            "next_stage": 4
+            "next_stage": {
+                "default": 4,
+                "if_debt_high": 6,
+                "if_morale_low": 6
+            },
         }
     ]
 }
@@ -205,11 +218,19 @@ stage_4 = {
     ]
 }
 
+stage_6 = {
+    "stage_id": 6,
+    "title": "Team Collapse",
+    "description": "Low morale causes a breakdown in coordination. The demo fails.",
+    "decisions": []
+}
+
 stages = {
     1: stage_1,
     2: stage_2,
     3: stage_3,
-    4: stage_4
+    4: stage_4,
+    6: stage_6
 }
 
 
@@ -252,7 +273,20 @@ def make_decision(req: DecisionRequest):
     )
 
     stage_completed = True
-    next_stage = decision["next_stage"]
+    def resolve_next_stage(next_stage_config, system_state):
+        if isinstance(next_stage_config, int):
+            return next_stage_config
+
+        # Conditional branching
+        if system_state["team_morale"] < 35 and "if_morale_low" in next_stage_config:
+            return next_stage_config["if_morale_low"]
+
+        if system_state["technical_debt"] > 4 and "if_debt_high" in next_stage_config:
+            return next_stage_config["if_debt_high"]
+
+        return next_stage_config.get("default")
+
+    next_stage = resolve_next_stage(decision["next_stage"], system_state)
     current_stage = next_stage
 
     game_over = False
