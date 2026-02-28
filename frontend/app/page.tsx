@@ -23,6 +23,11 @@ export default function Home() {
 
   const [currentStage, setCurrentStage] = useState<number>(1);
   const [stageLocked, setStageLocked] = useState(false);
+  const [sessionId, setSessionId] = useState<number | null>(null);
+
+  useEffect(() => {
+    startGame();
+  }, []);
 
   /* ---------------- LOAD SAVED STAGE ON FIRST LOAD ---------------- */
   useEffect(() => {
@@ -76,20 +81,43 @@ export default function Home() {
     localStorage.setItem("currentStage", currentStage.toString());
   }, [currentStage]);
 
+  async function startGame() {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/start", {
+      method: "POST",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Failed to start game:", data);
+      return;
+    }
+
+    setSessionId(data.session_id);
+    setSkills(data.skills);
+    setCurrentStage(data.stage);
+    setStageLocked(false);
+
+  } catch (err) {
+    console.error("Start failed:", err);
+  }
+}
 
   /* ---------------- HANDLE DECISION ---------------- */
   async function handleDecision(decisionId: number) {
-  if (stageLocked) return;
+  if (stageLocked || !sessionId) return;
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/decision", {
+    console.log("Sending:", sessionId, decisionId);
+    const res = await fetch("http://localhost:8000/decision", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        session_id: sessionId,
         decision_id: decisionId,
-        stage_id: currentStage,
       }),
     });
 

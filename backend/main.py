@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from simulation.engine import apply_decision
-from simulation.state import initial_skill_state, initial_system_state
 from pydantic import BaseModel
 from database import SessionLocal
 from database import engine
@@ -14,20 +13,19 @@ class DecisionRequest(BaseModel):
     session_id: int
     decision_id: int
 
-skill_state = initial_skill_state()
-system_state = initial_system_state()
+class ResetRequest(BaseModel):
+    session_id: int
+
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-current_stage = 1
-stage_completed = False
 
 # ----- Stage 1: Hackathon Kickoff -----
 stage_1 = {
@@ -259,17 +257,41 @@ def get_stage(stage_id: int):
 @app.post("/decision")
 def make_decision(req: DecisionRequest):
 
-    global skill_state, system_state, current_stage, stage_completed
+    db = SessionLocal()
 
-    if req.stage_id != current_stage:
-        return {"error": "Invalid stage progression"}
+    session = db.query(GameSession).filter(
+        GameSession.id == req.session_id
+    ).first()
 
-    if stage_completed:
-        return {"error": "Stage already completed"}
+    if not session:
+        return {"error": "Invalid session"}
 
-    stage = stages[req.stage_id]
-    decision = next(d for d in stage["decisions"] if d["id"] == req.decision_id)
+    current_stage = session.current_stage
 
+    stage = stages[current_stage]
+    decision = next(
+        d for d in stage["decisions"]
+        if d["id"] == req.decision_id
+    )
+
+    # Rebuild skill + system state from DB
+    skill_state = {
+        "product_thinking": session.product_thinking,
+        "technical_judgment": session.technical_judgment,
+        "leadership": session.leadership,
+        "resource_management": session.resource_management,
+        "execution": session.execution
+    }
+
+    system_state = {
+        "technical_debt": session.technical_debt,
+        "burnout": session.burnout,
+        "team_morale": session.team_morale,
+        "time_pressure": session.time_pressure,
+        "reputation": session.reputation
+    }
+
+    # Apply decision logic
     skill_state, system_state = apply_decision(
         skill_state,
         system_state,
@@ -278,12 +300,11 @@ def make_decision(req: DecisionRequest):
         risk_factor=decision.get("risk_factor", 1.0)
     )
 
-    stage_completed = True
+    # Resolve next stage
     def resolve_next_stage(next_stage_config, system_state):
         if isinstance(next_stage_config, int):
             return next_stage_config
 
-        # Conditional branching
         if system_state["team_morale"] < 35 and "if_morale_low" in next_stage_config:
             return next_stage_config["if_morale_low"]
 
@@ -292,9 +313,30 @@ def make_decision(req: DecisionRequest):
 
         return next_stage_config.get("default")
 
-    next_stage = resolve_next_stage(decision["next_stage"], system_state)
-    current_stage = next_stage
+    next_stage = resolve_next_stage(
+        decision["next_stage"],
+        system_state
+    )
 
+    # Update session in DB
+    session.product_thinking = skill_state["product_thinking"]
+    session.technical_judgment = skill_state["technical_judgment"]
+    session.leadership = skill_state["leadership"]
+    session.resource_management = skill_state["resource_management"]
+    session.execution = skill_state["execution"]
+
+    session.technical_debt = system_state["technical_debt"]
+    session.burnout = system_state["burnout"]
+    session.team_morale = system_state["team_morale"]
+    session.time_pressure = system_state["time_pressure"]
+    session.reputation = system_state["reputation"]
+
+    session.current_stage = next_stage
+
+    db.commit()
+    db.close()
+
+    # Game over logic
     game_over = False
     reason = None
 
@@ -306,7 +348,7 @@ def make_decision(req: DecisionRequest):
         game_over = True
         reason = "You burned out before finishing."
 
-    if req.stage_id == 4:
+    if current_stage == 4:
         game_over = True
         reason = "Hackathon completed."
 
@@ -319,13 +361,33 @@ def make_decision(req: DecisionRequest):
     }
 
 @app.post("/reset")
-def reset_game():
-    global skill_state, system_state, current_stage, stage_completed
+def reset_game(req: ResetRequest):
+    db = SessionLocal()
 
-    skill_state = initial_skill_state()
-    system_state = initial_system_state()
-    current_stage = 1
-    stage_completed = False
+    session = db.query(GameSession).filter(
+        GameSession.id == req.session_id
+    ).first()
+
+    if not session:
+        db.close()
+        return {"error": "Invalid session"}
+
+    # Reset skills
+    session.product_thinking = 0
+    session.technical_judgment = 0
+    session.leadership = 0
+    session.resource_management = 0
+    session.execution = 0
+
+    # Reset system
+    session.technical_debt = 0
+    session.burnout = 0
+    session.team_morale = 100
+
+    session.current_stage = 1
+
+    db.commit()
+    db.close()
 
     return {"message": "Game reset"}
 
@@ -334,8 +396,16 @@ def start_game():
     db = SessionLocal()
 
     new_session = GameSession(
-        skill_state=initial_skill_state(),
-        system_state=initial_system_state(),
+        product_thinking=0,
+        technical_judgment=0,
+        leadership=0,
+        resource_management=0,
+        execution=0,
+        technical_debt=0,
+        burnout=0,
+        team_morale=100,
+        time_pressure=0,
+        reputation=0,
         current_stage=1
     )
 
@@ -347,6 +417,12 @@ def start_game():
 
     return {
         "session_id": new_session.id,
-        "skills": new_session.skill_state,
+        "skills": {
+            "product_thinking": new_session.product_thinking,
+            "technical_judgment": new_session.technical_judgment,
+            "leadership": new_session.leadership,
+            "resource_management": new_session.resource_management,
+            "execution": new_session.execution
+        },
         "stage": new_session.current_stage
     }
