@@ -322,3 +322,8 @@ def reset_game():
     stage_completed = False
 
     return {"message": "Game reset"}
+
+from database import engine
+from models import Base
+
+Base.metadata.create_all(bind=engine)
