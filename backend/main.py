@@ -3,10 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from simulation.engine import apply_decision
 from simulation.state import initial_skill_state, initial_system_state
 from pydantic import BaseModel
+from database import SessionLocal
+from database import engine
+from models import Base
+from models import GameSession
+
+Base.metadata.create_all(bind=engine)
 
 class DecisionRequest(BaseModel):
+    session_id: int
     decision_id: int
-    stage_id: int
 
 skill_state = initial_skill_state()
 system_state = initial_system_state()
@@ -323,7 +329,24 @@ def reset_game():
 
     return {"message": "Game reset"}
 
-from database import engine
-from models import Base
+@app.post("/start")
+def start_game():
+    db = SessionLocal()
 
-Base.metadata.create_all(bind=engine)
+    new_session = GameSession(
+        skill_state=initial_skill_state(),
+        system_state=initial_system_state(),
+        current_stage=1
+    )
+
+    db.add(new_session)
+    db.commit()
+    db.refresh(new_session)
+
+    db.close()
+
+    return {
+        "session_id": new_session.id,
+        "skills": new_session.skill_state,
+        "stage": new_session.current_stage
+    }
