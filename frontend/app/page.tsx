@@ -163,12 +163,50 @@ export default function Home() {
     }
   }
 
+  function getArchetype(skills: SkillState, system: SystemState | null) {
+  if (!system) return "Undefined";
+
+  const total =
+    skills.product_thinking +
+    skills.technical_judgment +
+    skills.leadership +
+    skills.resource_management +
+    skills.execution;
+
+  if (system.team_morale <= 10) return "Team Destroyer 💀";
+  if (system.burnout >= 10) return "Burnout Machine 🔥";
+
+  const maxSkill = Object.entries(skills).reduce((a, b) =>
+    a[1] > b[1] ? a : b
+  )[0];
+
+  switch (maxSkill) {
+    case "product_thinking":
+      return "Visionary Strategist 🧠";
+    case "technical_judgment":
+      return "Technical Architect ⚙️";
+    case "leadership":
+      return "Team Catalyst 👑";
+    case "resource_management":
+      return "Strategic Operator 📊";
+    case "execution":
+      return "Execution Machine 🚀";
+    default:
+      return "Balanced Builder";
+  }
+}
+
   /* ---------------- GAME OVER SCREEN ---------------- */
   if (gameOver) {
+    const archetype = getArchetype(skills, system);
     return (
       <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
         <h1>Game Over</h1>
         <p>{finalReason}</p>
+        <h2>Your Archetype</h2>
+        <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+          {archetype}
+        </p>
 
         <h2>Final Skills</h2>
         <ul>
