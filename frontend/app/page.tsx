@@ -250,20 +250,31 @@ export default function Home() {
 
   /* ---------------- MAIN GAME ---------------- */
   return (
-    <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+    <main
+  style={{
+    minHeight: "100vh",
+    background: "#0d0d0d",
+    color: "#fff",
+    display: "flex",
+    justifyContent: "center",
+    padding: "2rem",
+  }}
+>
+  <div
+    style={{
+      width: "100%",
+      maxWidth: "1100px",
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr",
+      gap: "3rem",
+    }}
+  >
+    {/* LEFT SIDE */}
+    <div>
       <h1>{stage.title}</h1>
-      <p>{stage.description}</p>
+      <p style={{ opacity: 0.8 }}>{stage.description}</p>
 
-      <h2>Skills</h2>
-      <ul>
-        <li>Product Thinking: {skills.product_thinking}</li>
-        <li>Technical Judgment: {skills.technical_judgment}</li>
-        <li>Leadership: {skills.leadership}</li>
-        <li>Resource Management: {skills.resource_management}</li>
-        <li>Execution: {skills.execution}</li>
-      </ul>
-
-      <h2>Decisions</h2>
+      <h2 style={{ marginTop: "2rem" }}>Decisions</h2>
       {stage.decisions.map((decision: any) => (
         <button
           key={decision.id}
@@ -271,25 +282,109 @@ export default function Home() {
           disabled={stageLocked}
           style={{
             display: "block",
+            width: "100%",
             margin: "1rem 0",
-            padding: "0.5rem 1rem",
+            padding: "0.75rem 1rem",
+            background: "#1a1a1a",
+            border: "1px solid #333",
+            color: "#fff",
+            cursor: "pointer",
           }}
         >
           {decision.text}
         </button>
       ))}
+    </div>
 
-      <button
-        onClick={handleHardReset}
+    {/* RIGHT SIDE - STATS PANEL */}
+    <div
+    style={{
+      background: "#141414",
+      padding: "1.5rem",
+      borderRadius: "10px",
+      border: "1px solid #222",
+      position: "sticky",
+      top: "2rem",
+      height: "fit-content",
+    }}
+>
+    
+      <h2>Live Stats</h2>
+      <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "1rem",
+    marginTop: "1.5rem",
+  }}
+>
+  {Object.entries(skills).map(([key, value]) => (
+    <div key={key}>
+      <div
         style={{
-          marginTop: "2rem",
-          padding: "0.5rem 1rem",
-          backgroundColor: "#aa0000",
-          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "0.85rem",
+          marginBottom: "4px",
         }}
       >
-        Reset Game
-      </button>
-    </main>
+        <span style={{ textTransform: "capitalize" }}>
+          {key.replace("_", " ")}
+        </span>
+        <span>{value}</span>
+      </div>
+
+      <div
+        style={{
+          height: "6px",
+          background: "#222",
+          borderRadius: "4px",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${Math.max(0, value * 10)}%`,
+            height: "100%",
+            background:
+              value > 0 ? "#4caf50" : value < 0 ? "#f44336" : "#666",
+            transition: "width 0.4s ease",
+          }}
+        />
+      </div>
+    </div>
+  ))}
+</div>
+
+    <div style={{ marginTop: "2rem" }}>
+  <button
+    onClick={handleHardReset}
+    style={{
+      width: "100%",
+      padding: "0.75rem",
+      background: "transparent",
+      border: "1px solid #333",
+      borderRadius: "6px",
+      color: "#bbb",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = "#555";
+      e.currentTarget.style.color = "#fff";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = "#333";
+      e.currentTarget.style.color = "#bbb";
+    }}
+  >
+    Reset Game
+  </button>
+</div>
+
+      {/* Your compact skill bars go here */}
+    </div>
+  </div>
+</main>
   );
 }
