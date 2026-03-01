@@ -79,9 +79,10 @@ export default function Home() {
         return;
       }
 
-      setSessionId(data.session_id);
+      setSessionId(data.id);
       setSkills(data.skills);
-      setCurrentStage(data.stage);
+      setSystem(data.system_state);
+      setCurrentStage(data.current_stage);
       setGameOver(false);
       setFinalReason(null);
       setStageLocked(false);

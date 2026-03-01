@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, JSON
 from database import Base
+from sqlalchemy import String, Boolean
+from sqlalchemy.dialects.postgresql import JSONB
 
 class GameSession(Base):
     __tablename__ = "game_sessions"
@@ -7,14 +9,9 @@ class GameSession(Base):
     id = Column(Integer, primary_key=True, index=True)
     current_stage = Column(Integer, default=1)
 
-    product_thinking = Column(Integer, default=0)
-    technical_judgment = Column(Integer, default=0)
-    leadership = Column(Integer, default=0)
-    resource_management = Column(Integer, default=0)
-    execution = Column(Integer, default=0)
+    career_id = Column(String, nullable=False)
 
-    team_morale = Column(Integer, default=100)
-    burnout = Column(Integer, default=0)
-    technical_debt = Column(Integer, default=0)
-    time_pressure = Column(Integer, default=0)
-    reputation = Column(Integer, default=0)
+    skills = Column(JSONB, nullable=False)
+    system_state = Column(JSONB, nullable=False)
+
+    is_game_over = Column(Boolean, default=False)

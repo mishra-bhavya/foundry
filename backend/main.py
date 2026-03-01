@@ -6,6 +6,7 @@ from database import SessionLocal
 from database import engine
 from models import Base
 from models import GameSession
+from careers.hackathon import career_config
 
 Base.metadata.create_all(bind=engine)
 
@@ -264,32 +265,20 @@ def make_decision(req: DecisionRequest):
     ).first()
 
     if not session:
+        db.close()
         return {"error": "Invalid session"}
 
     current_stage = session.current_stage
-
     stage = stages[current_stage]
+
     decision = next(
         d for d in stage["decisions"]
         if d["id"] == req.decision_id
     )
 
-    # Rebuild skill + system state from DB
-    skill_state = {
-        "product_thinking": session.product_thinking,
-        "technical_judgment": session.technical_judgment,
-        "leadership": session.leadership,
-        "resource_management": session.resource_management,
-        "execution": session.execution
-    }
-
-    system_state = {
-        "technical_debt": session.technical_debt,
-        "burnout": session.burnout,
-        "team_morale": session.team_morale,
-        "time_pressure": session.time_pressure,
-        "reputation": session.reputation
-    }
+    # ✅ Use stored JSON directly
+    skill_state = session.skills.copy()
+    system_state = session.system_state.copy()
 
     # Apply decision logic
     skill_state, system_state = apply_decision(
@@ -305,10 +294,10 @@ def make_decision(req: DecisionRequest):
         if isinstance(next_stage_config, int):
             return next_stage_config
 
-        if system_state["team_morale"] < 35 and "if_morale_low" in next_stage_config:
+        if system_state.get("team_morale", 100) < 35 and "if_morale_low" in next_stage_config:
             return next_stage_config["if_morale_low"]
 
-        if system_state["technical_debt"] > 4 and "if_debt_high" in next_stage_config:
+        if system_state.get("technical_debt", 0) > 4 and "if_debt_high" in next_stage_config:
             return next_stage_config["if_debt_high"]
 
         return next_stage_config.get("default")
@@ -318,39 +307,30 @@ def make_decision(req: DecisionRequest):
         system_state
     )
 
-    # Update session in DB
-    session.product_thinking = skill_state["product_thinking"]
-    session.technical_judgment = skill_state["technical_judgment"]
-    session.leadership = skill_state["leadership"]
-    session.resource_management = skill_state["resource_management"]
-    session.execution = skill_state["execution"]
-
-    session.technical_debt = system_state["technical_debt"]
-    session.burnout = system_state["burnout"]
-    session.team_morale = system_state["team_morale"]
-    session.time_pressure = system_state["time_pressure"]
-    session.reputation = system_state["reputation"]
-
+    # ✅ Save updated JSON back into session
+    session.skills = skill_state
+    session.system_state = system_state
     session.current_stage = next_stage
 
     db.commit()
-    db.close()
 
     # Game over logic
     game_over = False
     reason = None
 
-    if system_state["team_morale"] <= 10:
+    if system_state.get("team_morale", 100) <= 10:
         game_over = True
         reason = "Team collapsed due to low morale."
 
-    if system_state["burnout"] >= 10:
+    if system_state.get("burnout", 0) >= 10:
         game_over = True
         reason = "You burned out before finishing."
 
     if current_stage == 4:
         game_over = True
         reason = "Hackathon completed."
+
+    db.close()
 
     return {
         "skills": skill_state,
@@ -396,17 +376,11 @@ def start_game():
     db = SessionLocal()
 
     new_session = GameSession(
-        product_thinking=0,
-        technical_judgment=0,
-        leadership=0,
-        resource_management=0,
-        execution=0,
-        technical_debt=0,
-        burnout=0,
-        team_morale=100,
-        time_pressure=0,
-        reputation=0,
-        current_stage=1
+        career_id=career_config["id"],
+        skills=career_config["skills"].copy(),
+        system_state=career_config["system_state"].copy(),
+        current_stage=1,
+        is_game_over=False
     )
 
     db.add(new_session)
@@ -416,13 +390,10 @@ def start_game():
     db.close()
 
     return {
-        "session_id": new_session.id,
-        "skills": {
-            "product_thinking": new_session.product_thinking,
-            "technical_judgment": new_session.technical_judgment,
-            "leadership": new_session.leadership,
-            "resource_management": new_session.resource_management,
-            "execution": new_session.execution
-        },
-        "stage": new_session.current_stage
+        "id": new_session.id,
+        "career_id": new_session.career_id,
+        "current_stage": new_session.current_stage,
+        "skills": new_session.skills,
+        "system_state": new_session.system_state,
+        "is_game_over": new_session.is_game_over,
     }
