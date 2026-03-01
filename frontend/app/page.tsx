@@ -10,6 +10,14 @@ type SkillState = {
   execution: number;
 };
 
+type SystemState = {
+  technical_debt: number;
+  burnout: number;
+  team_morale: number;
+  reputation: number;
+  time_pressure: number;
+};
+
 export default function Home() {
   const [stage, setStage] = useState<any>(null);
 
@@ -21,163 +29,188 @@ export default function Home() {
     execution: 0,
   });
 
+  const [system, setSystem] = useState<SystemState | null>(null);
+
   const [currentStage, setCurrentStage] = useState<number>(1);
   const [stageLocked, setStageLocked] = useState(false);
   const [sessionId, setSessionId] = useState<number | null>(null);
+
+  const [gameOver, setGameOver] = useState(false);
+  const [finalReason, setFinalReason] = useState<string | null>(null);
 
   useEffect(() => {
     startGame();
   }, []);
 
-  /* ---------------- LOAD SAVED STAGE ON FIRST LOAD ---------------- */
+  /* ---------------- FETCH STAGE ---------------- */
   useEffect(() => {
-    const savedStage = localStorage.getItem("currentStage");
-    if (savedStage) {
-      setCurrentStage(Number(savedStage));
-    }
-  }, []);
+    if (gameOver) return;
 
-  /* ---------------- FETCH STAGE DATA ---------------- */
-  useEffect(() => {
     async function fetchStage() {
       try {
         const res = await fetch(
           `http://127.0.0.1:8000/stage/${currentStage}`
         );
 
-        if (!res.ok) {
-          console.warn("No more stages available.");
-          return;
-        }
+        if (!res.ok) return;
 
         const data = await res.json();
         setStage(data);
         setStageLocked(false);
-
-      } catch (error) {
-        console.error("Fetch failed:", error);
-        setCurrentStage(1);
+      } catch (err) {
+        console.error("Stage fetch failed:", err);
       }
     }
 
     fetchStage();
-  }, [currentStage]);
+  }, [currentStage, gameOver]);
 
-  /* ---------------- LOAD SAVED SKILLS ONCE ---------------- */
-  useEffect(() => {
-    const savedSkills = localStorage.getItem("skills");
-    if (savedSkills) {
-      setSkills(JSON.parse(savedSkills));
-    }
-  }, []);
-
-  /* ---------------- SAVE SKILLS ---------------- */
-  useEffect(() => {
-    localStorage.setItem("skills", JSON.stringify(skills));
-  }, [skills]);
-
-  /* ---------------- SAVE CURRENT STAGE ---------------- */
-  useEffect(() => {
-    localStorage.setItem("currentStage", currentStage.toString());
-  }, [currentStage]);
-
+  /* ---------------- START GAME ---------------- */
   async function startGame() {
-  try {
-    const res = await fetch("http://127.0.0.1:8000/start", {
-      method: "POST",
-    });
+    try {
+      const res = await fetch("http://127.0.0.1:8000/start", {
+        method: "POST",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      console.error("Failed to start game:", data);
-      return;
+      if (!res.ok) {
+        console.error("Failed to start:", data);
+        return;
+      }
+
+      setSessionId(data.session_id);
+      setSkills(data.skills);
+      setCurrentStage(data.stage);
+      setGameOver(false);
+      setFinalReason(null);
+      setStageLocked(false);
+    } catch (err) {
+      console.error("Start failed:", err);
     }
-
-    setSessionId(data.session_id);
-    setSkills(data.skills);
-    setCurrentStage(data.stage);
-    setStageLocked(false);
-
-  } catch (err) {
-    console.error("Start failed:", err);
   }
-}
 
   /* ---------------- HANDLE DECISION ---------------- */
   async function handleDecision(decisionId: number) {
-  if (stageLocked || !sessionId) return;
+    if (stageLocked || !sessionId) return;
 
-  try {
-    console.log("Sending:", sessionId, decisionId);
-    const res = await fetch("http://localhost:8000/decision", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        session_id: sessionId,
-        decision_id: decisionId,
-      }),
-    });
+    try {
+      const res = await fetch("http://127.0.0.1:8000/decision", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          decision_id: decisionId,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok || !data.skills) {
-      console.error("Backend rejected decision:", data);
-      return;
-    }
+      if (!res.ok) {
+        console.error("Decision rejected:", data);
+        return;
+      }
 
-    // NEW: handle game over
-    if (data.game_over) {
       setSkills(data.skills);
-      alert(data.reason);
+      setSystem(data.system);
+
+      if (data.game_over) {
+        setGameOver(true);
+        setFinalReason(data.reason);
+        return;
+      }
+
       setStageLocked(true);
-      return;
+
+      setTimeout(() => {
+        setCurrentStage(data.next_stage);
+      }, 600);
+
+    } catch (err) {
+      console.error("Decision failed:", err);
     }
-
-    setSkills(data.skills);
-    setStageLocked(true);
-
-    setTimeout(() => {
-      setCurrentStage(data.next_stage);
-    }, 800);
-
-  } catch (err) {
-    console.error("Decision failed:", err);
   }
-}
 
-  /* ---------------- HANDLE RESET GAME AND SKILL SCORES ---------------- */
-  async function handleResetGame() {
-  try {
-    await fetch("http://127.0.0.1:8000/reset", {
-      method: "POST",
-    });
-
-    localStorage.clear();
-
-    setSkills({
-      product_thinking: 0,
-      technical_judgment: 0,
-      leadership: 0,
-      resource_management: 0,
-      execution: 0,
-    });
-
-    setCurrentStage(1);
-
-  } catch (err) {
-    console.error("Reset failed:", err);
+  /* ---------------- RESTART GAME ---------------- */
+  async function handleRestart() {
+    await startGame();
   }
-}
 
-  /* ---------------- LOADING GUARD ---------------- */
+  /* ---------------- RESET EVERYTHING ---------------- */
+  async function handleHardReset() {
+    try {
+      await fetch("http://127.0.0.1:8000/reset", {
+        method: "POST",
+      });
+
+      setGameOver(false);
+      setFinalReason(null);
+      setSkills({
+        product_thinking: 0,
+        technical_judgment: 0,
+        leadership: 0,
+        resource_management: 0,
+        execution: 0,
+      });
+      setSystem(null);
+      setCurrentStage(1);
+
+      await startGame();
+    } catch (err) {
+      console.error("Hard reset failed:", err);
+    }
+  }
+
+  /* ---------------- GAME OVER SCREEN ---------------- */
+  if (gameOver) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+        <h1>Game Over</h1>
+        <p>{finalReason}</p>
+
+        <h2>Final Skills</h2>
+        <ul>
+          <li>Product Thinking: {skills.product_thinking}</li>
+          <li>Technical Judgment: {skills.technical_judgment}</li>
+          <li>Leadership: {skills.leadership}</li>
+          <li>Resource Management: {skills.resource_management}</li>
+          <li>Execution: {skills.execution}</li>
+        </ul>
+
+        {system && (
+          <>
+            <h2>System State</h2>
+            <ul>
+              <li>Technical Debt: {system.technical_debt}</li>
+              <li>Burnout: {system.burnout}</li>
+              <li>Team Morale: {system.team_morale}</li>
+              <li>Reputation: {system.reputation}</li>
+              <li>Time Pressure: {system.time_pressure}</li>
+            </ul>
+          </>
+        )}
+
+        <button
+          onClick={handleRestart}
+          style={{
+            marginTop: "1rem",
+            padding: "0.5rem 1rem",
+          }}
+        >
+          Play Again
+        </button>
+      </main>
+    );
+  }
+
+  /* ---------------- LOADING ---------------- */
   if (!stage || !stage.decisions) {
     return <p>Loading...</p>;
   }
 
-
+  /* ---------------- MAIN GAME ---------------- */
   return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>{stage.title}</h1>
@@ -185,11 +218,11 @@ export default function Home() {
 
       <h2>Skills</h2>
       <ul>
-        <li>Product Thinking: {skills?.product_thinking ?? 0}</li>
-        <li>Technical Judgment: {skills?.technical_judgment ?? 0}</li>
-        <li>Leadership: {skills?.leadership ?? 0}</li>
-        <li>Resource Management: {skills?.resource_management ?? 0}</li>
-        <li>Execution: {skills?.execution ?? 0}</li>
+        <li>Product Thinking: {skills.product_thinking}</li>
+        <li>Technical Judgment: {skills.technical_judgment}</li>
+        <li>Leadership: {skills.leadership}</li>
+        <li>Resource Management: {skills.resource_management}</li>
+        <li>Execution: {skills.execution}</li>
       </ul>
 
       <h2>Decisions</h2>
@@ -208,19 +241,17 @@ export default function Home() {
         </button>
       ))}
 
-
       <button
-          onClick={handleResetGame}
-          style={{
-            marginTop: "2rem",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#aa0000",
-            color: "white",
-          }}
-        >
-          Reset Game
-        </button>
-
+        onClick={handleHardReset}
+        style={{
+          marginTop: "2rem",
+          padding: "0.5rem 1rem",
+          backgroundColor: "#aa0000",
+          color: "white",
+        }}
+      >
+        Reset Game
+      </button>
     </main>
   );
 }
