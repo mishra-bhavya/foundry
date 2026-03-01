@@ -2,34 +2,16 @@
 
 import { useState, useEffect } from "react";
 
-type SkillState = {
-  product_thinking: number;
-  technical_judgment: number;
-  leadership: number;
-  resource_management: number;
-  execution: number;
-};
+type SkillState = Record<string, number>;
 
-type SystemState = {
-  technical_debt: number;
-  burnout: number;
-  team_morale: number;
-  reputation: number;
-  time_pressure: number;
-};
+type SystemState = Record<string, number>;
 
 export default function Home() {
   const [stage, setStage] = useState<any>(null);
 
-  const [skills, setSkills] = useState<SkillState>({
-    product_thinking: 0,
-    technical_judgment: 0,
-    leadership: 0,
-    resource_management: 0,
-    execution: 0,
-  });
+  const [skills, setSkills] = useState<SkillState>({});
 
-  const [system, setSystem] = useState<SystemState | null>(null);
+  const [system, setSystem] = useState<SystemState>({});
 
   const [currentStage, setCurrentStage] = useState<number>(1);
   const [stageLocked, setStageLocked] = useState(false);
@@ -44,17 +26,25 @@ export default function Home() {
 
   /* ---------------- FETCH STAGE ---------------- */
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || !sessionId) return;
 
     async function fetchStage() {
       try {
-        const res = await fetch(
-          `http://127.0.0.1:8000/stage/${currentStage}`
-        );
+        const res = await fetch(`http://127.0.0.1:8000/stage/${currentStage}?session_id=${sessionId}`);
 
-        if (!res.ok) return;
+        if (!res.ok){
+        console.error("Stage fetch failed:", await res.text());
+        return;
+      }
 
         const data = await res.json();
+
+        if (data.final) {
+          setGameOver(true);
+          setFinalReason(data.reason);
+          return;
+        }
+
         setStage(data);
         setStageLocked(false);
       } catch (err) {
@@ -63,13 +53,13 @@ export default function Home() {
     }
 
     fetchStage();
-  }, [currentStage, gameOver]);
+  }, [currentStage, gameOver, sessionId]);
 
   /* ---------------- START GAME ---------------- */
   async function startGame() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/start", {
-        method: "POST",
+      const res = await fetch("http://127.0.0.1:8000/start?career_id=hackathon", {
+          method: "POST"
       });
 
       const data = await res.json();
@@ -148,14 +138,8 @@ export default function Home() {
 
       setGameOver(false);
       setFinalReason(null);
-      setSkills({
-        product_thinking: 0,
-        technical_judgment: 0,
-        leadership: 0,
-        resource_management: 0,
-        execution: 0,
-      });
-      setSystem(null);
+      setSkills({});
+      setSystem({});
       setCurrentStage(1);
 
       await startGame();
