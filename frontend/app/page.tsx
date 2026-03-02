@@ -2,6 +2,14 @@
 
 import { useState, useEffect } from "react";
 
+const skillsSchema = [
+  "product_thinking",
+  "technical_judgment",
+  "leadership",
+  "resource_management",
+  "execution",
+];
+
 type SkillState = Record<string, number>;
 
 type SystemState = Record<string, number>;
@@ -303,42 +311,46 @@ export default function Home() {
     marginTop: "1.5rem",
   }}
 >
-  {Object.entries(skills).map(([key, value]) => (
-    <div key={key}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: "0.85rem",
-          marginBottom: "4px",
-        }}
-      >
-        <span style={{ textTransform: "capitalize" }}>
-          {key.replace("_", " ")}
-        </span>
-        <span>{value}</span>
-      </div>
+  {skillsSchema.map((key) => {
+      const value = skills[key] ?? 0;
 
-      <div
-        style={{
-          height: "6px",
-          background: "#222",
-          borderRadius: "4px",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            width: `${Math.max(0, value * 10)}%`,
-            height: "100%",
-            background:
-              value > 0 ? "#4caf50" : value < 0 ? "#f44336" : "#666",
-            transition: "width 0.4s ease",
-          }}
-        />
-      </div>
-    </div>
-  ))}
+      return (
+        <div key={key}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "0.85rem",
+              marginBottom: "4px",
+            }}
+          >
+            <span style={{ textTransform: "capitalize" }}>
+              {key.replace(/_/g, " ")}
+            </span>
+            <span>{value}</span>
+          </div>
+
+          <div
+            style={{
+              height: "6px",
+              background: "#222",
+              borderRadius: "4px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${Math.max(0, value * 10)}%`,
+                height: "100%",
+                background:
+                  value > 0 ? "#4caf50" : value < 0 ? "#f44336" : "#666",
+                transition: "width 0.4s ease",
+              }}
+            />
+          </div>
+        </div>
+      );
+    })}
 </div>
 
     <div style={{ marginTop: "2rem" }}>
