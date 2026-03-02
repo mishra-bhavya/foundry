@@ -247,5 +247,7 @@ def start_game(career_id: str = Query(...)):
         "current_stage": new_session.current_stage,
         "skills": new_session.skills,
         "system_state": new_session.system_state,
+        "skills_schema": career_config["skills_schema"],
+        "system_schema": career_config["system_schema"],
         "is_game_over": new_session.is_game_over
     }

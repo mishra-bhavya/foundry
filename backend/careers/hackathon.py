@@ -1,5 +1,24 @@
+skills_schema = [
+    "product_thinking",
+    "technical_judgment",
+    "leadership",
+    "resource_management",
+    "execution"
+]
+
+system_schema = [
+    "technical_debt",
+    "burnout",
+    "team_morale",
+    "reputation",
+    "time_pressure"
+]
+
 career_config = {
     "id": "hackathon",
+
+    "skills_schema": skills_schema,
+    "system_schema": system_schema,
 
     "skills": {
         "product_thinking": 0,
