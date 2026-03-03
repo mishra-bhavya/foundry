@@ -2,14 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-const skillsSchema = [
-  "product_thinking",
-  "technical_judgment",
-  "leadership",
-  "resource_management",
-  "execution",
-];
-
 type SkillState = Record<string, number>;
 
 type SystemState = Record<string, number>;
@@ -18,8 +10,10 @@ export default function Home() {
   const [stage, setStage] = useState<any>(null);
 
   const [skills, setSkills] = useState<SkillState>({});
-
   const [system, setSystem] = useState<SystemState>({});
+
+  const [skillsSchema, setSkillsSchema] = useState<string[]>([]);
+  const [systemSchema, setSystemSchema] = useState<string[]>([]);
 
   const [currentStage, setCurrentStage] = useState<number>(1);
   const [stageLocked, setStageLocked] = useState(false);
@@ -81,6 +75,8 @@ export default function Home() {
       setSkills(data.skills);
       setSystem(data.system_state);
       setCurrentStage(data.current_stage);
+      setSkillsSchema(data.skills_schema);
+      setSystemSchema(data.system_schema);
       setGameOver(false);
       setFinalReason(null);
       setStageLocked(false);
