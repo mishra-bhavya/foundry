@@ -62,7 +62,7 @@ def get_stage(stage_id: int, session_id: int = Query(...)):
     if stage.get("final"):
         return {
             "final": True,
-            "reason": "Hackathon completed."
+            "reason": f"{session.career_id.capitalize()} completed."
         }
 
     return stage
@@ -143,6 +143,8 @@ def make_decision(req: DecisionRequest):
     if next_stage is None:
         session.is_game_over = True
         db.commit()
+
+        career_id = session.career_id  # store BEFORE closing
         db.close()
 
         return {
@@ -150,7 +152,7 @@ def make_decision(req: DecisionRequest):
             "system": system_state,
             "next_stage": None,
             "game_over": True,
-            "reason": "Hackathon completed."
+            "reason": f"{career_id.capitalize()} completed."
         }
 
     # ✅ Save updated JSON back into session
@@ -173,8 +175,10 @@ def make_decision(req: DecisionRequest):
         reason = "You burned out before finishing."
 
     if stage.get("final"):
-        game_over = True
-        reason = "Hackathon completed."
+        return {
+            "final": True,
+            "reason": f"{session.career_id.capitalize()} completed."
+        }
 
     db.close()
 
