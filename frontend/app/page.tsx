@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 
 type SkillState = Record<string, number>;
-
 type SystemState = Record<string, number>;
 
 export default function Home() {
@@ -60,7 +59,7 @@ export default function Home() {
   /* ---------------- START GAME ---------------- */
   async function startGame() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/start?career_id=hackathon", {
+      const res = await fetch("http://127.0.0.1:8000/start?career_id=doctor", {
           method: "POST"
       });
 
