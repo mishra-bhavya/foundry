@@ -255,3 +255,7 @@ def start_game(career_id: str = Query(...)):
         "system_schema": career_config["system_schema"],
         "is_game_over": new_session.is_game_over
     }
+
+@app.get("/careers")
+def list_careers():
+    return list(CAREERS.keys())
