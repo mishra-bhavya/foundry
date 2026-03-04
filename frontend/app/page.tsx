@@ -3,10 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+type Career = {
+  id: string
+  name: string
+  description: string
+}
+
 export default function Home() {
   const router = useRouter();
 
-  const [careers, setCareers] = useState<string[]>([]);
+  const [careers, setCareers] = useState<Career[]>([]);
 
   const selectCareer = (careerId: string) => {
     router.push(`/game?career=${careerId}`);
@@ -29,12 +35,22 @@ export default function Home() {
 
       <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
         {careers.map((career) => (
-          <button
-            key={career}
-            onClick={() => selectCareer(career)}
+          <div
+            key={career.id}
+            onClick={() => selectCareer(career.id)}
+            style={{
+              border: "1px solid #333",
+              padding: "1rem",
+              borderRadius: "8px",
+              cursor: "pointer",
+              width: "220px"
+            }}
           >
-            {career.charAt(0).toUpperCase() + career.slice(1)}
-          </button>
+            <h3>{career.name}</h3>
+            <p style={{ fontSize: "0.9rem", opacity: 0.7 }}>
+              {career.description}
+            </p>
+          </div>
         ))}
       </div>
     </main>

@@ -16,6 +16,8 @@ system_schema = [
 
 career_config = {
     "id": "hackathon",
+    "name": "Hackathon",
+    "description": "Build a product under extreme time pressure while managing team dynamics and technical tradeoffs.",
 
     "skills_schema": skills_schema,
     "system_schema": system_schema,

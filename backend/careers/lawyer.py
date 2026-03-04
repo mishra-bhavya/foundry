@@ -16,6 +16,8 @@ system_schema = [
 
 career_config = {
     "id": "lawyer",
+    "name": "Lawyer",
+    "description": "Navigate legal strategy, research, negotiation, and courtroom pressure.",
 
     "skills_schema": skills_schema,
     "system_schema": system_schema,

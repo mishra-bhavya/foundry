@@ -18,6 +18,8 @@ system_schema = [
 
 career_config = {
     "id": "doctor",
+    "name": "Doctor",
+    "description": "Diagnose patients while balancing medical knowledge, ethics, and time pressure.",
 
     "skills_schema": skills_schema,
     "system_schema": system_schema,

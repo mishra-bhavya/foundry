@@ -268,5 +268,12 @@ def start_game(career_id: str = Query(...)):
     }
 
 @app.get("/careers")
-def list_careers():
-    return list(CAREERS.keys())
+def get_careers():
+    return [
+        {
+            "id": key,
+            "name": value.get("name", key.capitalize()),
+            "description": value.get("description", "")
+        }
+        for key, value in CAREERS.items()
+    ]
