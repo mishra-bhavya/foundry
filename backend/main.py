@@ -141,10 +141,16 @@ def make_decision(req: DecisionRequest):
     )
 
     if next_stage is None:
+
         session.is_game_over = True
         db.commit()
 
-        career_id = session.career_id  # store BEFORE closing
+        dominant_skill = max(skill_state, key=skill_state.get)
+        weakest_skill = min(skill_state, key=skill_state.get)
+
+        performance_score = sum(skill_state.values()) - sum(system_state.values())
+
+        career_id = session.career_id
         db.close()
 
         return {
@@ -152,7 +158,12 @@ def make_decision(req: DecisionRequest):
             "system": system_state,
             "next_stage": None,
             "game_over": True,
-            "reason": f"{career_id.capitalize()} completed."
+            "reason": f"{career_id.capitalize()} completed.",
+            "summary": {
+                "dominant_skill": dominant_skill,
+                "weakest_skill": weakest_skill,
+                "performance_score": performance_score
+            }
         }
 
     # ✅ Save updated JSON back into session

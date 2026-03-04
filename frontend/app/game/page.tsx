@@ -157,72 +157,50 @@ export default function Home() {
     }
   }
 
-  function getArchetype(skills: SkillState, system: SystemState | null) {
-  if (!system) return "Undefined";
-
-  const total =
-    skills.product_thinking +
-    skills.technical_judgment +
-    skills.leadership +
-    skills.resource_management +
-    skills.execution;
-
-  if (system.team_morale <= 10) return "Team Destroyer 💀";
-  if (system.burnout >= 10) return "Burnout Machine 🔥";
-
-  const maxSkill = Object.entries(skills).reduce((a, b) =>
-    a[1] > b[1] ? a : b
-  )[0];
-
-  switch (maxSkill) {
-    case "product_thinking":
-      return "Visionary Strategist 🧠";
-    case "technical_judgment":
-      return "Technical Architect ⚙️";
-    case "leadership":
-      return "Team Catalyst 👑";
-    case "resource_management":
-      return "Strategic Operator 📊";
-    case "execution":
-      return "Execution Machine 🚀";
-    default:
-      return "Balanced Builder";
-  }
-}
+  
 
   /* ---------------- GAME OVER SCREEN ---------------- */
   if (gameOver) {
-    const archetype = getArchetype(skills, system);
+
+    const dominantSkill = Object.entries(skills).reduce((a, b) =>
+      a[1] > b[1] ? a : b
+    )[0];
+
+    const weakestSkill = Object.entries(skills).reduce((a, b) =>
+      a[1] < b[1] ? a : b
+    )[0];
+
+    const performanceScore =
+      Object.values(skills).reduce((a, b) => a + b, 0) -
+      Object.values(system).reduce((a, b) => a + b, 0);
+
     return (
       <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-        <h1>Game Over</h1>
+        <h1>Simulation Complete</h1>
         <p>{finalReason}</p>
-        <h2>Your Archetype</h2>
-        <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-          {archetype}
+
+        <h2>Performance Summary</h2>
+
+        <p>
+          <strong>Dominant Skill:</strong> {dominantSkill.replace(/_/g, " ")}
+        </p>
+
+        <p>
+          <strong>Weakest Skill:</strong> {weakestSkill.replace(/_/g, " ")}
+        </p>
+
+        <p>
+          <strong>Overall Score:</strong> {performanceScore}
         </p>
 
         <h2>Final Skills</h2>
         <ul>
-          <li>Product Thinking: {skills.product_thinking}</li>
-          <li>Technical Judgment: {skills.technical_judgment}</li>
-          <li>Leadership: {skills.leadership}</li>
-          <li>Resource Management: {skills.resource_management}</li>
-          <li>Execution: {skills.execution}</li>
+          {skillsSchema.map((key) => (
+            <li key={key}>
+              {key.replace(/_/g, " ")}: {skills[key] ?? 0}
+            </li>
+          ))}
         </ul>
-
-        {system && (
-          <>
-            <h2>System State</h2>
-            <ul>
-              <li>Technical Debt: {system.technical_debt}</li>
-              <li>Burnout: {system.burnout}</li>
-              <li>Team Morale: {system.team_morale}</li>
-              <li>Reputation: {system.reputation}</li>
-              <li>Time Pressure: {system.time_pressure}</li>
-            </ul>
-          </>
-        )}
 
         <button
           onClick={handleRestart}
