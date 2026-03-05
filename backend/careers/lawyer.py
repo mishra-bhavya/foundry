@@ -50,7 +50,7 @@ career_config = {
                         "skills": {"research": 1},
                         "system": {"stress": 1}
                     },
-                    "next_stage": None
+                    "next_stage": 2
                 }
             ]
         }

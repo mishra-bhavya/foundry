@@ -8,6 +8,7 @@ from models import Base
 from models import GameSession
 from careers import CAREERS
 from fastapi import Query
+from services.ai_engine import generate_stage
 
 Base.metadata.create_all(bind=engine)
 
@@ -53,6 +54,15 @@ def get_stage(stage_id: int, session_id: int = Query(...)):
         return {"error": "Career not found"}
 
     stage = career_config["stages"].get(stage_id)
+
+    # If stage not defined, generate dynamically
+    if not stage:
+        stage = generate_stage(
+            session.career_id,
+            session.skills,
+            session.system_state,
+            stage_id
+        )
 
     db.close()
 
