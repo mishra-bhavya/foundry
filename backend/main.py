@@ -65,7 +65,6 @@ def get_stage(stage_id: int, session_id: int = Query(...)):
         )
 
     db.close()
-
     if not stage:
         return {"error": "Stage not found"}
 
@@ -74,7 +73,6 @@ def get_stage(stage_id: int, session_id: int = Query(...)):
             "final": True,
             "reason": f"{session.career_id.capitalize()} completed."
         }
-
     return stage
 
 
@@ -98,22 +96,37 @@ def make_decision(req: DecisionRequest):
         db.close()
         return {"error": "Career not found"}
 
+    # Try static stage first
     stage = career_config["stages"].get(current_stage)
+
+    # Generate dynamic stage if not present
+    if not stage:
+        stage = generate_stage(
+            session.career_id,
+            session.skills,
+            session.system_state,
+            current_stage
+        )
 
     if not stage:
         db.close()
         return {"error": "Stage not found"}
 
+    # Find the decision chosen
     decision = next(
-        d for d in stage["decisions"]
-        if d["id"] == req.decision_id
+        (d for d in stage["decisions"] if d["id"] == req.decision_id),
+        None
     )
 
-    # ✅ Use stored JSON directly
+    if not decision:
+        db.close()
+        return {"error": "Decision not found"}
+
+    # Copy stored states
     skill_state = session.skills.copy()
     system_state = session.system_state.copy()
 
-    # Apply decision logic
+    # Apply decision effects
     skill_state, system_state = apply_decision(
         skill_state,
         system_state,
@@ -122,34 +135,37 @@ def make_decision(req: DecisionRequest):
         risk_factor=decision.get("risk_factor", 1.0)
     )
 
-    # Resolve next stage
+    # Determine next stage
     def resolve_next_stage(next_stage_config, system_state):
-        # FINAL STAGE
+
         if next_stage_config is None:
             return None
 
-        # Simple direct jump
         if isinstance(next_stage_config, int):
             return next_stage_config
 
-        # Conditional branching
         if isinstance(next_stage_config, dict):
-            if system_state["team_morale"] < 35 and "if_morale_low" in next_stage_config:
+
+            if system_state.get("team_morale", 100) < 35 and "if_morale_low" in next_stage_config:
                 return next_stage_config["if_morale_low"]
 
-            if system_state["technical_debt"] > 4 and "if_debt_high" in next_stage_config:
+            if system_state.get("technical_debt", 0) > 4 and "if_debt_high" in next_stage_config:
                 return next_stage_config["if_debt_high"]
 
             return next_stage_config.get("default")
 
         return None
 
-
     next_stage = resolve_next_stage(
-        decision["next_stage"],
+        decision.get("next_stage"),
         system_state
     )
 
+    # Default fallback progression
+    if next_stage is None and not stage.get("final"):
+        next_stage = current_stage + 1
+
+    # Final stage handling
     if next_stage is None:
 
         session.is_game_over = True
@@ -176,14 +192,13 @@ def make_decision(req: DecisionRequest):
             }
         }
 
-    # ✅ Save updated JSON back into session
+    # Save updated state
     session.skills = skill_state
     session.system_state = system_state
     session.current_stage = next_stage
 
     db.commit()
 
-    # Game over logic
     game_over = False
     reason = None
 
@@ -194,12 +209,6 @@ def make_decision(req: DecisionRequest):
     if system_state.get("burnout", 0) >= 10:
         game_over = True
         reason = "You burned out before finishing."
-
-    if stage.get("final"):
-        return {
-            "final": True,
-            "reason": f"{session.career_id.capitalize()} completed."
-        }
 
     db.close()
 

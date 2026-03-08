@@ -46,9 +46,10 @@ export default function Home() {
 
         const data = await res.json();
 
-        if (data.final) {
+        if (data.game_over) {
           setGameOver(true);
           setFinalReason(data.reason);
+          setStageLocked(true);
           return;
         }
 
@@ -77,8 +78,14 @@ export default function Home() {
       }
 
       setSessionId(data.id);
-      setSkills(data.skills);
-      setSystem(data.system_state);
+      setSkills(prev => ({
+        ...prev,
+        ...data.skills
+      }));;
+      setSystem(prev => ({
+        ...prev,
+        ...data.system
+      }));
       setCurrentStage(data.current_stage);
       setSkillsSchema(data.skills_schema);
       setSystemSchema(data.system_schema);
@@ -113,8 +120,14 @@ export default function Home() {
         return;
       }
 
-      setSkills(data.skills);
-      setSystem(data.system);
+      setSkills(prev => ({
+        ...prev,
+        ...data.skills
+      }));;
+      setSystem(prev => ({
+        ...prev,
+        ...data.system
+      }));
 
       if (data.game_over) {
         setGameOver(true);
@@ -125,7 +138,9 @@ export default function Home() {
       setStageLocked(true);
 
       setTimeout(() => {
-        setCurrentStage(data.next_stage);
+        if (data.next_stage !== null && data.next_stage !== undefined) {
+          setCurrentStage(data.next_stage);
+        }
       }, 600);
 
     } catch (err) {
@@ -291,7 +306,7 @@ export default function Home() {
   }}
 >
   {skillsSchema.map((key) => {
-      const value = skills[key] ?? 0;
+      const value = skills?.[key] ?? 0;
 
       return (
         <div key={key}>

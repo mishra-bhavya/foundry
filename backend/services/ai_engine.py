@@ -2,9 +2,14 @@
 
 def generate_stage(career_id, skill_state, system_state, stage_number):
     """
-    Placeholder AI stage generator.
-    Later this will call an LLM.
+    Generate a placeholder stage that respects the career schema.
     """
+
+    skill_keys = list(skill_state.keys())
+    system_keys = list(system_state.keys())
+
+    skill_key = skill_keys[stage_number % len(skill_keys)]
+    system_key = system_keys[stage_number % len(system_keys)]
 
     return {
         "title": f"{career_id.capitalize()} Challenge {stage_number}",
@@ -12,15 +17,21 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
         "decisions": [
             {
                 "id": 1,
-                "text": "Take the safe and cautious approach",
-                "impact": {"execution": 1},
+                "text": "Take a cautious approach",
+                "impact": {
+                    "skills": {skill_key: 1},
+                    "system": {system_key: 1}
+                },
                 "next_stage": stage_number + 1
             },
             {
                 "id": 2,
-                "text": "Take a bold high-risk move",
-                "impact": {"execution": 3},
-                "risk_factor": 1.5,
+                "text": "Take a bold risky move",
+                "impact": {
+                    "skills": {skill_key: 2},
+                    "system": {system_key: 2}
+                },
+                "risk_factor": 1.4,
                 "next_stage": stage_number + 1
             }
         ]
