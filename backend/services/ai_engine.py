@@ -7,13 +7,23 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
 
     skill_keys = list(skill_state.keys())
     system_keys = list(system_state.keys())
+    scenarios = [
+        "A client demands results faster than expected.",
+        "Opposing counsel introduces a surprise argument.",
+        "Your team disagrees on the best legal strategy.",
+        "A key witness changes their testimony.",
+        "The judge challenges your interpretation of the law.",
+        "New evidence appears late in the case.",
+        "Your client pressures you to take a risky approach."
+    ]
 
+    scenario = scenarios[stage_number % len(scenarios)]
     skill_key = skill_keys[stage_number % len(skill_keys)]
     system_key = system_keys[stage_number % len(system_keys)]
 
     return {
         "title": f"{career_id.capitalize()} Challenge {stage_number}",
-        "description": "An unexpected situation appears. How do you respond?",
+        "description": scenario,
         "decisions": [
             {
                 "id": 1,
