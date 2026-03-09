@@ -321,7 +321,7 @@ export default function Home() {
             <span style={{ textTransform: "capitalize" }}>
               {key.replace(/_/g, " ")}
             </span>
-            <span>{value}</span>
+            <span>{Number(value).toFixed(1)}</span>
           </div>
 
           <div
