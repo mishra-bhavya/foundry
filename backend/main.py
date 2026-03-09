@@ -202,7 +202,7 @@ def make_decision(req: DecisionRequest):
     game_over = False
     reason = None
 
-    if system_state.get("team_morale", 100) <= 10:
+    if system_state.get("team_morale", 100) <= 20:
         game_over = True
         reason = "Team collapsed due to low morale."
 
