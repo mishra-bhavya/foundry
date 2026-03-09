@@ -345,6 +345,39 @@ export default function Home() {
         </div>
       );
     })}
+
+    <h3 style={{ marginTop: "2rem" }}>System Pressure</h3>
+
+    {systemSchema.map((key) => {
+      const value = system[key] ?? 0;
+
+      return (
+        <div key={key}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>{key.replace("_", " ")}</span>
+            <span>{Math.round(value)}</span>
+          </div>
+
+          <div
+            style={{
+              height: "6px",
+              background: "#333",
+              marginTop: "4px",
+              borderRadius: "3px",
+            }}
+          >
+            <div
+              style={{
+                width: `${Math.min(value * 10, 100)}%`,
+                height: "100%",
+                background: "#ff6b6b",
+                borderRadius: "3px",
+              }}
+            />
+          </div>
+        </div>
+      );
+    })}
 </div>
 
     <div style={{ marginTop: "2rem" }}>
