@@ -27,22 +27,31 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
         "decisions": [
             {
                 "id": 1,
-                "text": "Take a cautious approach",
+                "text": "Play it safe and proceed cautiously",
                 "impact": {
                     "skills": {skill_key: 1},
-                    "system": {system_key: 1}
+                    "system": {system_key: -1}
                 },
-                "next_stage": stage_number + 1
+                "next_stage": None
             },
             {
                 "id": 2,
-                "text": "Take a bold risky move",
+                "text": "Take a balanced and calculated approach",
                 "impact": {
                     "skills": {skill_key: 2},
+                    "system": {system_key: 0}
+                },
+                "next_stage": None
+            },
+            {
+                "id": 3,
+                "text": "Make a bold and risky move",
+                "impact": {
+                    "skills": {skill_key: 3},
                     "system": {system_key: 2}
                 },
                 "risk_factor": 1.4,
-                "next_stage": stage_number + 1
+                "next_stage": None
             }
         ]
     }
