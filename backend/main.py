@@ -201,13 +201,22 @@ def make_decision(req: DecisionRequest):
 
     db.commit()
 
-    # 10% chance to trigger a random career event
-    if random.random() < 0.10:
+    # Event cooldown system
+    EVENT_COOLDOWN = 3
+
+    can_trigger_event = (
+        current_stage - session.last_event_stage >= EVENT_COOLDOWN
+    )
+
+    if can_trigger_event and random.random() < 0.10:
 
         event_stage = generate_event(session.career_id)
 
         if event_stage:
+            session.last_event_stage = current_stage
+            db.commit()
             db.close()
+
             return {
                 "event": True,
                 "stage": event_stage,

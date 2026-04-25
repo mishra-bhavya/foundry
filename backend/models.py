@@ -15,3 +15,5 @@ class GameSession(Base):
     system_state = Column(JSONB, nullable=False)
 
     is_game_over = Column(Boolean, default=False)
+
+    last_event_stage = Column(Integer, default=-10)
