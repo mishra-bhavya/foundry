@@ -9,6 +9,8 @@ from models import GameSession
 from careers import CAREERS
 from fastapi import Query
 from services.ai_engine import generate_stage
+import random
+from services.event_engine import generate_event
 
 Base.metadata.create_all(bind=engine)
 
@@ -198,6 +200,21 @@ def make_decision(req: DecisionRequest):
     session.current_stage = next_stage
 
     db.commit()
+
+    # 10% chance to trigger a random career event
+    if random.random() < 0.10:
+
+        event_stage = generate_event(session.career_id)
+
+        if event_stage:
+            db.close()
+            return {
+                "event": True,
+                "stage": event_stage,
+                "skills": skill_state,
+                "system": system_state,
+                "game_over": False
+            }
 
     game_over = False
     reason = None

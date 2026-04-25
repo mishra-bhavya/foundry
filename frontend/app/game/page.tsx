@@ -138,9 +138,21 @@ export default function Home() {
       setStageLocked(true);
 
       setTimeout(() => {
+
+        /* ---------- NEW: EVENT HANDLING ---------- */
+        if (data.event && data.stage) {
+          setStage(data.stage);
+          setStageLocked(false);
+          return;
+        }
+
+        /* ---------- NORMAL STAGE FLOW ---------- */
         if (data.next_stage !== null && data.next_stage !== undefined) {
           setCurrentStage(data.next_stage);
         }
+
+        setStageLocked(false);
+
       }, 600);
 
     } catch (err) {
