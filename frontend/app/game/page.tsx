@@ -322,7 +322,10 @@ export default function Home() {
       <p style={{ opacity: 0.8 }}>{stage.description}</p>
 
       <h2 style={{ marginTop: "2rem" }}>Decisions</h2>
-      {stage.decisions.map((decision: any) => (
+      {stage.decisions.map((decision: any) => {
+        const skillEffects = Object.entries(decision.impact?.skills || {}) as [string, number][];
+        const systemEffects = Object.entries(decision.impact?.system || {}) as [string, number][];
+        return (
         <button
           key={decision.id}
           onClick={() => handleDecision(decision.id)}
@@ -339,8 +342,30 @@ export default function Home() {
           }}
         >
           {decision.text}
+
+          <div style={{ fontSize: "0.8rem", opacity: 0.7, marginTop: "6px" }}>
+            {skillEffects.map(([key, val]) => (
+              <div
+                key={key}
+                style={{ color: val > 0 ? "#4ade80" : "#f87171" }}
+              >
+                {val > 0 ? "+" : ""}{val} {key.replace(/_/g, " ")}
+              </div>
+            ))}
+
+            {systemEffects.map(([key, val]) => (
+              <div
+                key={key}
+                style={{ color: val > 0 ? "#4ade80" : "#f87171" }}
+              >
+                {val > 0 ? "+" : ""}{val} {key.replace(/_/g, " ")}
+              </div>
+            ))}
+          </div>
+
         </button>
-      ))}
+        );
+      })}
     </div>
 
     {/* RIGHT SIDE - STATS PANEL */}
@@ -413,14 +438,34 @@ export default function Home() {
 
       const status = getStatStatus(key, value);
 
-      let barColor = "#22c55e"; // green
-      if (status === "warning") barColor = "#facc15"; // yellow
-      if (status === "danger") barColor = "#ef4444"; // red
+      const positiveStats = [
+        "reputation",
+        "client_trust",
+        "team_morale",
+        "patient_trust"
+      ];
+
+      const isGoodStat = positiveStats.includes(key);
+
+      let barColor = "#22c55e";
+      if (isGoodStat) {
+        if (value < 30) {
+          barColor = "#ef4444";
+        } else if (value < 60) {
+          barColor = "#facc15";
+        }
+      } else {
+        if (value >= 8) {
+          barColor = "#ef4444";
+        } else if (value >= 5) {
+          barColor = "#facc15";
+        }
+      }
 
       return (
         <div key={key}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span>{key.replace("_", " ")}</span>
+            <span>{key.replace(/_/g, " ")}</span>
             <span>{Math.round(value)}</span>
           </div>
 
