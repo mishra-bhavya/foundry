@@ -15,3 +15,10 @@ Base = declarative_base()
 
 # TEMPORARY RESET (add this)
 Base.metadata.create_all(bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

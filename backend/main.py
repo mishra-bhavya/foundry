@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from simulation.engine import apply_decision
 from pydantic import BaseModel
-from database import SessionLocal
+from database import SessionLocal, get_db
 from database import engine
 from models import Base
 from models import GameSession
@@ -11,6 +11,10 @@ from fastapi import Query
 from services.ai_engine import generate_stage
 import random
 from services.event_engine import generate_event
+from services.event_engine import check_stat_events
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -78,24 +82,21 @@ def get_stage(stage_id: int, session_id: int = Query(...)):
     return stage
 
 
-@app.post("/decision")
-def make_decision(req: DecisionRequest):
 
-    db = SessionLocal()
+@app.post("/decision")
+def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
 
     session = db.query(GameSession).filter(
         GameSession.id == req.session_id
     ).first()
 
     if not session:
-        db.close()
         return {"error": "Invalid session"}
 
     current_stage = session.current_stage
     career_config = CAREERS.get(session.career_id)
 
     if not career_config:
-        db.close()
         return {"error": "Career not found"}
 
     # Try static stage first
@@ -111,7 +112,6 @@ def make_decision(req: DecisionRequest):
         )
 
     if not stage:
-        db.close()
         return {"error": "Stage not found"}
 
     # Find the decision chosen
@@ -121,7 +121,6 @@ def make_decision(req: DecisionRequest):
     )
 
     if not decision:
-        db.close()
         return {"error": "Decision not found"}
 
     # Copy stored states
@@ -176,10 +175,9 @@ def make_decision(req: DecisionRequest):
         dominant_skill = max(skill_state, key=skill_state.get)
         weakest_skill = min(skill_state, key=skill_state.get)
 
-        performance_score = sum(skill_state.values()) - sum(system_state.values())
+        performance_score = round(sum(skill_state.values()) - sum(system_state.values(), 2))
 
         career_id = session.career_id
-        db.close()
 
         return {
             "skills": skill_state,
@@ -208,6 +206,23 @@ def make_decision(req: DecisionRequest):
         current_stage - session.last_event_stage >= EVENT_COOLDOWN
     )
 
+    # Check stat-triggered events first
+    if can_trigger_event:
+
+        stat_event = check_stat_events(session.career_id, system_state)
+
+        if stat_event:
+            session.last_event_stage = current_stage
+            db.commit()
+
+            return {
+                "event": True,
+                "stage": stat_event,
+                "skills": skill_state,
+                "system": system_state,
+                "game_over": False
+            }
+
     if can_trigger_event and random.random() < 0.10:
 
         event_stage = generate_event(session.career_id)
@@ -215,7 +230,6 @@ def make_decision(req: DecisionRequest):
         if event_stage:
             session.last_event_stage = current_stage
             db.commit()
-            db.close()
 
             return {
                 "event": True,
@@ -225,19 +239,42 @@ def make_decision(req: DecisionRequest):
                 "game_over": False
             }
 
+    
     game_over = False
     reason = None
 
-    if system_state.get("team_morale", 100) <= 20:
-        game_over = True
-        reason = "Team collapsed due to low morale."
+    career = session.career_id
 
-    if system_state.get("burnout", 0) >= 10:
-        game_over = True
-        reason = "You burned out before finishing."
+    # Hackathon failures
+    if career == "hackathon":
+        if system_state.get("team_morale", 100) <= 20:
+            game_over = True
+            reason = "Your team collapsed due to low morale."
 
-    db.close()
+        if system_state.get("burnout", 0) >= 10:
+            game_over = True
+            reason = "You burned out before finishing."
 
+    # Doctor failures
+    elif career == "doctor":
+        if system_state.get("fatigue", 0) >= 35:
+            game_over = True
+            reason = "Exhaustion caused a critical medical error."
+
+        if system_state.get("legal_risk", 0) >= 20:
+            game_over = True
+            reason = "A malpractice lawsuit ended your career."
+
+    # Lawyer failures
+    elif career == "lawyer":
+        if system_state.get("stress", 0) >= 35:
+            game_over = True
+            reason = "Stress caused you to collapse during trial."
+
+        if system_state.get("reputation", 0) <= 10:
+            game_over = True
+            reason = "Your professional reputation collapsed."
+    
     return {
         "skills": skill_state,
         "system": system_state,
