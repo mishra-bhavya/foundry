@@ -14,6 +14,8 @@ class GameSession(Base):
     skills = Column(JSONB, nullable=False)
     system_state = Column(JSONB, nullable=False)
 
+    decision_history = Column(JSON, default=list)
+
     is_game_over = Column(Boolean, default=False)
 
     last_event_stage = Column(Integer, default=-10)

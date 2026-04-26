@@ -123,6 +123,18 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
     if not decision:
         return {"error": "Decision not found"}
 
+    history = list(session.decision_history or [])
+
+    history.append({
+        "stage": current_stage,
+        "decision_id": decision["id"],
+        "title": stage["title"],
+        "decision_text": decision["text"]
+    })
+
+    session.decision_history = history
+
+
     # Copy stored states
     skill_state = session.skills.copy()
     system_state = session.system_state.copy()
@@ -175,7 +187,7 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         dominant_skill = max(skill_state, key=skill_state.get)
         weakest_skill = min(skill_state, key=skill_state.get)
 
-        performance_score = round(sum(skill_state.values()) - sum(system_state.values(), 2))
+        performance_score = round(sum(skill_state.values()) - sum(system_state.values()), 2)
 
         career_id = session.career_id
 
@@ -189,7 +201,8 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
                 "dominant_skill": dominant_skill,
                 "weakest_skill": weakest_skill,
                 "performance_score": performance_score
-            }
+            },
+            "decision_history": session.decision_history
         }
 
     # Save updated state
@@ -280,7 +293,8 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         "system": system_state,
         "next_stage": next_stage,
         "game_over": game_over,
-        "reason": reason
+        "reason": reason,
+        "history": session.decision_history
     }
 
 @app.post("/reset")

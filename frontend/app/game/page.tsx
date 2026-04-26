@@ -33,6 +33,7 @@ export default function Home() {
 
   const [skills, setSkills] = useState<SkillState>({});
   const [system, setSystem] = useState<SystemState>({});
+  const [history, setHistory] = useState<any[]>([])
 
   const [skillsSchema, setSkillsSchema] = useState<string[]>([]);
   const [systemSchema, setSystemSchema] = useState<string[]>([]);
@@ -94,6 +95,10 @@ export default function Home() {
 
         const data = await res.json();
 
+        if (data.history) {
+          setHistory(data.history)
+        }
+
         if (data.game_over) {
           setGameOver(true);
           setFinalReason(data.reason);
@@ -149,6 +154,8 @@ export default function Home() {
   async function handleDecision(decisionId: number) {
     if (stageLocked || !sessionId) return;
 
+    setStageLocked(true);
+
     try {
       const res = await fetch("http://127.0.0.1:8000/decision", {
         method: "POST",
@@ -162,6 +169,10 @@ export default function Home() {
       });
 
       const data = await res.json();
+
+      if (data.history) {
+        setHistory(data.history);
+      }
 
       if (!res.ok) {
         console.error("Decision rejected:", data);
@@ -182,8 +193,6 @@ export default function Home() {
         setFinalReason(data.reason);
         return;
       }
-
-      setStageLocked(true);
 
       setTimeout(() => {
 
@@ -267,6 +276,15 @@ export default function Home() {
         <p>
           <strong>Overall Score:</strong> {performanceScore}
         </p>
+
+        <h2>Decision Timeline</h2>
+
+        {history && history.map((h: any, index: number) => (
+          <div key={index} style={{marginBottom: "10px"}}>
+            <strong>Stage {h.stage}</strong> — {h.title}
+            <div>Choice: {h.decision_text}</div>
+          </div>
+        ))}
 
         <h2>Final Skills</h2>
         <ul>
