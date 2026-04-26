@@ -1,6 +1,15 @@
 import random
 
+
+
 def generate_stage(career_id, skill_state, system_state, stage_number):
+
+    if stage_number < 10:
+        difficulty = 1.0
+    elif stage_number < 30:
+        difficulty = 1.3
+    else:
+        difficulty = 1.7
 
     skill_keys = list(skill_state.keys())
     system_keys = list(system_state.keys())
@@ -51,7 +60,7 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
                 "text": "Play it safe and proceed cautiously",
                 "impact": {
                     "skills": {skill_key: 1},
-                    "system": {system_key: -1}
+                    "system": {system_key: int(-1*difficulty)}
                 },
                 "next_stage": None
             },
@@ -60,7 +69,7 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
                 "text": "Take a balanced and calculated approach",
                 "impact": {
                     "skills": {skill_key: 2},
-                    "system": {system_key: 0}
+                    "system": {system_key: int(0*difficulty)}
                 },
                 "next_stage": None
             },
@@ -69,7 +78,7 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
                 "text": "Make a bold and risky move",
                 "impact": {
                     "skills": {skill_key: 3},
-                    "system": {system_key: 2}
+                    "system": {system_key: int(2*difficulty)}
                 },
                 "risk_factor": 1.4,
                 "next_stage": None
