@@ -5,6 +5,29 @@ import { useState, useEffect } from "react";
 type SkillState = Record<string, number>;
 type SystemState = Record<string, number>;
 
+function getStatStatus(stat: string, value: number) {
+  const thresholds: Record<string, { warning: number; danger: number }> = {
+    burnout: { warning: 5, danger: 10 },
+    technical_debt: { warning: 8, danger: 15 },
+    time_pressure: { warning: 5, danger: 10 },
+    reputation: { warning: 20, danger: 10 },
+    team_morale: { warning: 40, danger: 20 }
+  };
+
+  const config = thresholds[stat];
+  if (!config) return "good";
+
+  if (stat === "reputation" || stat === "team_morale") {
+    if (value < config.danger) return "danger";
+    if (value < config.warning) return "warning";
+    return "good";
+  }
+
+  if (value >= config.danger) return "danger";
+  if (value >= config.warning) return "warning";
+  return "good";
+}
+
 export default function Home() {
   const [stage, setStage] = useState<any>(null);
 
@@ -30,6 +53,31 @@ export default function Home() {
   useEffect(() => {
     startGame();
   }, []);
+
+
+  function getStatStatus(stat: string, value: number) {
+    const thresholds: Record<string, { warning: number; danger: number }> = {
+      burnout: { warning: 5, danger: 10 },
+      technical_debt: { warning: 8, danger: 15 },
+      time_pressure: { warning: 5, danger: 10 },
+      reputation: { warning: 20, danger: 10 },
+      team_morale: { warning: 40, danger: 20 }
+    };
+
+    const config = thresholds[stat];
+    if (!config) return "normal";
+
+    if (stat === "reputation" || stat === "team_morale") {
+      if (value < config.danger) return "danger";
+      if (value < config.warning) return "warning";
+      return "good";
+    }
+
+    if (value >= config.danger) return "danger";
+    if (value >= config.warning) return "warning";
+    return "good";
+  }
+
 
   /* ---------------- FETCH STAGE ---------------- */
   useEffect(() => {
@@ -363,6 +411,12 @@ export default function Home() {
     {systemSchema.map((key) => {
       const value = system[key] ?? 0;
 
+      const status = getStatStatus(key, value);
+
+      let barColor = "#22c55e"; // green
+      if (status === "warning") barColor = "#facc15"; // yellow
+      if (status === "danger") barColor = "#ef4444"; // red
+
       return (
         <div key={key}>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -382,7 +436,7 @@ export default function Home() {
               style={{
                 width: `${Math.min(value * 10, 100)}%`,
                 height: "100%",
-                background: "#ff6b6b",
+                background: barColor,
                 borderRadius: "3px",
               }}
             />
