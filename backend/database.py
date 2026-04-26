@@ -12,3 +12,6 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
+# TEMPORARY RESET (add this)
+Base.metadata.create_all(bind=engine)
