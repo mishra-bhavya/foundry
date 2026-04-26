@@ -133,7 +133,7 @@ def make_decision(req: DecisionRequest):
         skill_state,
         system_state,
         impact=decision["impact"],
-        difficulty=1.0,
+        stage=current_stage,
         risk_factor=decision.get("risk_factor", 1.0)
     )
 

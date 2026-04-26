@@ -3,7 +3,10 @@ from .constants import SIM_CONSTANTS
 from .utils import clamp_all
 
 
-def apply_decision(skill_state, system_state, impact, difficulty=1.0, risk_factor=1.0):
+def apply_decision(skill_state, system_state, impact, stage, risk_factor=1.0):
+
+    difficulty = 1 + (stage * 0.05)
+
     # Apply skill changes
     for skill, value in impact.get("skills", {}).items():
         base_value = skill_state.get(skill, 0)
@@ -13,7 +16,7 @@ def apply_decision(skill_state, system_state, impact, difficulty=1.0, risk_facto
         burnout = system_state.get("burnout", 0)
         burnout_penalty = max(0.5, 1 - burnout * 0.03)
 
-        adjusted = value * difficulty * skill_modifier * burnout_penalty
+        adjusted = value * (1 / difficulty) * skill_modifier * burnout_penalty
 
         skill_state[skill] = base_value + adjusted
 
@@ -27,6 +30,7 @@ def apply_decision(skill_state, system_state, impact, difficulty=1.0, risk_facto
 
         adjusted = value * difficulty * risk_factor * debt_penalty
 
-        system_state[system_key] = base_value + adjusted
+        new_value = base_value + adjusted
+        system_state[system_key] = max(0, new_value)
 
     return skill_state, system_state
