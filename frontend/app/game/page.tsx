@@ -82,7 +82,7 @@ export default function Home() {
 
   /* ---------------- FETCH STAGE ---------------- */
   useEffect(() => {
-    if (gameOver || !sessionId) return;
+    if (gameOver || !sessionId || stageLocked) return;
 
     async function fetchStage() {
       try {
@@ -176,6 +176,7 @@ export default function Home() {
 
       if (!res.ok) {
         console.error("Decision rejected:", data);
+        setStageLocked(false);
         return;
       }
 
@@ -219,6 +220,17 @@ export default function Home() {
 
   /* ---------------- RESTART GAME ---------------- */
   async function handleRestart() {
+
+    setSkills({});
+    setSystem({});
+    setHistory([]);
+
+    setGameOver(false);
+    setFinalReason(null);
+
+    setCurrentStage(1);
+    setStage(null);
+
     await startGame();
   }
 
@@ -290,7 +302,7 @@ export default function Home() {
         <ul>
           {skillsSchema.map((key) => (
             <li key={key}>
-              {key.replace(/_/g, " ")}: {skills[key] ?? 0}
+              {key.replace(/_/g, " ")}: {Number(skills[key] ?? 0).toFixed(1)}
             </li>
           ))}
         </ul>
@@ -341,8 +353,8 @@ export default function Home() {
 
       <h2 style={{ marginTop: "2rem" }}>Decisions</h2>
       {stage.decisions.map((decision: any) => {
-        const skillEffects = Object.entries(decision.impact?.skills || {}) as [string, number][];
-        const systemEffects = Object.entries(decision.impact?.system || {}) as [string, number][];
+        const skillEffects = Object.entries(decision.impact?.skills || {}).filter(([key]) => skillsSchema.includes(key)) as [string, number][];
+        const systemEffects = Object.entries(decision.impact?.system || {}).filter(([key]) => systemSchema.includes(key)) as [string, number][];
         return (
         <button
           key={decision.id}
