@@ -42,6 +42,8 @@ export default function Home() {
   const [stageLocked, setStageLocked] = useState(false);
   const [sessionId, setSessionId] = useState<number | null>(null);
 
+  const [endingType, setEndingType] = useState<string | null>(null);
+
   const [gameOver, setGameOver] = useState(false);
   const [finalReason, setFinalReason] = useState<string | null>(null);
 
@@ -103,6 +105,11 @@ export default function Home() {
           setGameOver(true);
           setFinalReason(data.reason);
           setStageLocked(true);
+
+          if (data.ending_type) {
+            setEndingType(data.ending_type);
+          }
+
           return;
         }
 
@@ -192,6 +199,11 @@ export default function Home() {
       if (data.game_over) {
         setGameOver(true);
         setFinalReason(data.reason);
+
+        if (data.ending_type) {
+          setEndingType(data.ending_type);
+        }
+
         return;
       }
 
@@ -273,6 +285,10 @@ export default function Home() {
     return (
       <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
         <h1>Simulation Complete</h1>
+        <p>
+          <strong>Ending Type:</strong> {endingType?.replace("_", " ")}
+        </p>
+
         <p>{finalReason}</p>
 
         <h2>Performance Summary</h2>

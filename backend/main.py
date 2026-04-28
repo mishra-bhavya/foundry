@@ -15,6 +15,8 @@ from services.event_engine import check_stat_events
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+MAX_STAGES = 20
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -174,8 +176,12 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         system_state
     )
 
-    # Default fallback progression
-    if next_stage is None and not stage.get("final"):
+    # Force completion if next stage would exceed limit
+    if next_stage and next_stage > MAX_STAGES:
+        next_stage = None
+
+    # Default fallback progression (respect MAX_STAGES)
+    if next_stage is None and not stage.get("final") and current_stage < MAX_STAGES:
         next_stage = current_stage + 1
 
     # Final stage handling
@@ -191,12 +197,25 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
 
         career_id = session.career_id
 
+        # --- Determine ending type ---
+        ending_type = "completed"
+
+        if system_state.get("fatigue", 0) > 12:
+            ending_type = "burnout"
+
+        elif system_state.get("legal_risk", 0) > 10:
+            ending_type = "malpractice"
+
+        elif system_state.get("team_morale", 100) < 20:
+            ending_type = "team_collapse"
+
         return {
             "skills": skill_state,
             "system": system_state,
             "next_stage": None,
             "game_over": True,
-            "reason": f"{career_id.capitalize()} completed.",
+            "ending_type": ending_type,
+            "reason": f"{career_id.capitalize()} simulation finished.",
             "summary": {
                 "dominant_skill": dominant_skill,
                 "weakest_skill": weakest_skill,
@@ -293,6 +312,7 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         "system": system_state,
         "next_stage": next_stage,
         "game_over": game_over,
+        "ending_type": "failure",
         "reason": reason,
         "history": session.decision_history
     }
