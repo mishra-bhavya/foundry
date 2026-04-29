@@ -14,6 +14,7 @@ from services.event_engine import generate_event
 from services.event_engine import check_stat_events
 from fastapi import Depends
 from sqlalchemy.orm import Session
+from services.ai_feedback import generate_ai_feedback
 
 MAX_STAGES = 20
 
@@ -307,15 +308,25 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
             game_over = True
             reason = "Your professional reputation collapsed."
     
-    return {
+    result = {
         "skills": skill_state,
         "system": system_state,
         "next_stage": next_stage,
         "game_over": game_over,
         "ending_type": "failure",
         "reason": reason,
-        "history": session.decision_history
+        "decision_history": session.decision_history
     }
+
+    # Only run AI if the game actually ended
+    if game_over:
+        ai_feedback = generate_ai_feedback({
+            "career_id": session.career_id,
+            **result
+        })
+        result["ai_feedback"] = ai_feedback
+
+    return result
 
 @app.post("/reset")
 def reset_game(req: ResetRequest):
