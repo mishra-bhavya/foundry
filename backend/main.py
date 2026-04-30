@@ -210,7 +210,7 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         elif system_state.get("team_morale", 100) < 20:
             ending_type = "team_collapse"
 
-        return {
+        result = {
             "skills": skill_state,
             "system": system_state,
             "next_stage": None,
@@ -224,6 +224,16 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
             },
             "decision_history": session.decision_history
         }
+
+        # Run AI feedback (safe because feature flag is OFF)
+        ai_feedback = generate_ai_feedback({
+            "career_id": career_id,
+            **result
+        })
+
+        result["ai_feedback"] = ai_feedback
+
+        return result
 
     # Save updated state
     session.skills = skill_state
