@@ -39,6 +39,8 @@ export default function Home() {
   const [skillsSchema, setSkillsSchema] = useState<string[]>([]);
   const [systemSchema, setSystemSchema] = useState<string[]>([]);
 
+  const [careerStory, setCareerStory] = useState("");
+
   const [currentStage, setCurrentStage] = useState<number>(1);
   const [stageLocked, setStageLocked] = useState(false);
   const [sessionId, setSessionId] = useState<number | null>(null);
@@ -209,6 +211,10 @@ export default function Home() {
           setEndingType(data.ending_type);
         }
 
+        if (data.career_story) {
+          setCareerStory(data.career_story);
+        }
+
         return;
       }
 
@@ -295,6 +301,13 @@ export default function Home() {
         </p>
 
         <p>{finalReason}</p>
+
+        {careerStory && (
+          <>
+            <h2>Career Reflection</h2>
+            <p>{careerStory}</p>
+          </>
+        )}
 
         <h2>Performance Summary</h2>
 

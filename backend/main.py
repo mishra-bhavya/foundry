@@ -18,6 +18,7 @@ from services.event_engine import check_stat_events
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from services.ai_feedback import generate_ai_feedback
+from services.ai_feedback import generate_career_ending
 
 MAX_STAGES = 20
 
@@ -196,8 +197,6 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         dominant_skill = max(skill_state, key=skill_state.get)
         weakest_skill = min(skill_state, key=skill_state.get)
 
-        performance_score = round(sum(skill_state.values()) - sum(system_state.values()), 2)
-
         career_id = session.career_id
 
         # --- Determine ending type ---
@@ -212,6 +211,15 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         elif system_state.get("team_morale", 100) < 20:
             ending_type = "team_collapse"
 
+        performance_score = round(sum(skill_state.values()) - sum(system_state.values()), 2)
+
+        career_story = generate_career_ending(
+            career_id,
+            dominant_skill,
+            weakest_skill,
+            ending_type
+        )
+
         result = {
             "skills": skill_state,
             "system": system_state,
@@ -219,6 +227,7 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
             "game_over": True,
             "ending_type": ending_type,
             "reason": f"{career_id.capitalize()} simulation finished.",
+            "career_story": career_story,
             "summary": {
                 "dominant_skill": dominant_skill,
                 "weakest_skill": weakest_skill,

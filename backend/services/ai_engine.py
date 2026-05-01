@@ -32,79 +32,119 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
 
     scenario_bank = {
 
-        "lawyer": [
-            "A client demands results faster than expected.",
-            "Opposing counsel introduces a surprise argument.",
-            "A key witness suddenly changes their testimony.",
-            "The judge questions your legal interpretation.",
-            "New evidence appears late in the case.",
-            "A rival firm attempts to undermine your strategy.",
-            "A client pressures you to settle prematurely.",
-            "A regulatory authority requests clarification.",
-            "A journalist begins covering the case publicly.",
-            "A partner questions your courtroom strategy.",
-            "A surprise document appears during discovery.",
-            "A negotiation with opposing counsel becomes hostile.",
-            "A corporate client demands aggressive tactics.",
-            "A junior associate mishandles a critical filing.",
-            "A confidential memo leaks unexpectedly.",
-            "A last-minute legal precedent threatens your argument.",
-            "A witness becomes unavailable before trial.",
-            "A client reveals information that weakens your case.",
-            "A regulatory change complicates your strategy.",
-            "A judge imposes strict time limits on arguments."
-        ],
+        "doctor": {
 
-        "doctor": [
-            "A patient arrives with unusual symptoms.",
-            "A critical patient suddenly deteriorates.",
-            "A colleague questions your diagnosis.",
-            "You must act quickly during an emergency procedure.",
-            "A worried family demands immediate answers.",
-            "Hospital administration pressures you to move faster.",
-            "A rare disease is suspected but tests are inconclusive.",
-            "A patient refuses a life-saving treatment.",
-            "A surgical complication appears unexpectedly.",
-            "A medical intern makes a documentation mistake.",
-            "A treatment causes an unexpected reaction.",
-            "A shortage of hospital resources complicates care.",
-            "A patient's condition worsens overnight.",
-            "A nurse alerts you to a concerning lab result.",
-            "A miscommunication delays an important treatment.",
-            "A patient arrives with multiple conflicting symptoms.",
-            "A critical decision must be made during surgery.",
-            "A family disputes your treatment plan.",
-            "A diagnostic machine fails during examination.",
-            "A patient reacts badly to a routine procedure."
-        ],
+            "diagnosis": [
+                "A patient arrives with unusual symptoms.",
+                "A rare disease is suspected but tests are inconclusive.",
+                "Two diagnoses appear equally likely.",
+                "Lab results contradict your initial assessment.",
+                "A junior doctor proposes a controversial diagnosis."
+            ],
 
-        "hackathon": [
-            "Your team disagrees on the product direction.",
-            "A major bug appears shortly before submission.",
-            "Your teammate suggests a risky new feature.",
-            "Judges announce a surprise evaluation criterion.",
-            "Your demo crashes minutes before presentation.",
-            "Time is running out and the prototype is incomplete.",
-            "A teammate disappears during a critical phase.",
-            "A key API suddenly stops working.",
-            "A judge asks an unexpected technical question.",
-            "A competitor presents a very similar idea.",
-            "The team debates pivoting the concept.",
-            "A last-minute feature breaks the build.",
-            "A teammate accidentally deletes a critical file.",
-            "A server outage disrupts your development environment.",
-            "A judge asks about scalability concerns.",
-            "A teammate proposes rewriting a core feature.",
-            "A critical library update breaks your code.",
-            "A surprise requirement forces a redesign.",
-            "A teammate suggests cutting features for stability.",
-            "A demo environment fails just before presentation."
-        ]
+            "emergency": [
+                "A critical patient suddenly deteriorates.",
+                "A surgical complication appears unexpectedly.",
+                "A patient collapses in the waiting room.",
+                "A trauma case arrives requiring immediate action.",
+                "An allergic reaction escalates rapidly."
+            ],
+
+            "pressure": [
+                "Hospital administration pressures you to discharge patients faster.",
+                "A worried family demands immediate answers.",
+                "Your department is short-staffed during a busy shift.",
+                "A nurse alerts you to a concerning change in a patient’s vitals.",
+                "Another doctor challenges your treatment plan."
+            ],
+
+            "ethical": [
+                "A patient refuses a life-saving treatment.",
+                "A family asks you to hide a diagnosis from the patient.",
+                "You must decide how much risk to take with an experimental treatment.",
+                "A colleague may have made a serious medical mistake.",
+                "A patient cannot afford the recommended treatment."
+            ]
+        },
+
+
+        "lawyer": {
+
+            "case_conflict": [
+                "Opposing counsel introduces a surprise argument.",
+                "A key witness suddenly changes testimony.",
+                "New evidence appears late in the case.",
+                "The judge questions your interpretation of the law.",
+                "A procedural mistake threatens your case."
+            ],
+
+            "client_pressure": [
+                "A client demands results faster than expected.",
+                "A corporate client pushes for aggressive tactics.",
+                "Your client insists on taking the case to trial.",
+                "A high-profile client brings media attention.",
+                "A client withholds crucial information."
+            ],
+
+            "legal_strategy": [
+                "A risky legal precedent could strengthen your case.",
+                "A senior partner questions your courtroom strategy.",
+                "Opposing counsel offers an unexpected settlement.",
+                "You uncover a loophole that could change the case.",
+                "The judge demands a new legal argument."
+            ],
+
+            "ethics": [
+                "A client asks you to bend the truth slightly.",
+                "You discover evidence that could harm your client.",
+                "A junior associate makes an ethical mistake.",
+                "You must choose between loyalty and legal ethics.",
+                "A powerful client pressures you to ignore regulations."
+            ]
+        },
+
+
+        "hackathon": {
+
+            "team_conflict": [
+                "Your team disagrees on the product direction.",
+                "A teammate refuses to work on the backend.",
+                "Two teammates argue over design choices.",
+                "Your most skilled developer suddenly disappears.",
+                "A teammate wants to pivot the entire project."
+            ],
+
+            "technical_crisis": [
+                "A major bug appears shortly before submission.",
+                "Your demo crashes minutes before presentation.",
+                "A key API stops working unexpectedly.",
+                "Your database becomes corrupted.",
+                "Your prototype suddenly stops compiling."
+            ],
+
+            "time_pressure": [
+                "Judges announce a surprise evaluation criterion.",
+                "You realize you underestimated the project scope.",
+                "Only a few hours remain and features are incomplete.",
+                "Your team must choose between polish or features.",
+                "Time is running out and the prototype is unstable."
+            ],
+
+            "strategy": [
+                "A teammate suggests a risky new feature.",
+                "You consider pivoting the product idea entirely.",
+                "A mentor suggests simplifying your project.",
+                "Another team shows a very similar idea.",
+                "You must choose between innovation or reliability."
+            ]
+        }
     }
 
-    scenarios = scenario_bank.get(career_id, ["Unexpected situation arises."])
+    career_scenarios = scenario_bank.get(career_id, {})
 
-    scenario = random.choice(scenarios)
+    category = random.choice(list(career_scenarios.keys()))
+
+    scenario = random.choice(career_scenarios[category])
 
     skill_key = skill_keys[stage_number % len(skill_keys)]
     system_key = system_keys[stage_number % len(system_keys)]
