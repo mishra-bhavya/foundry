@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from simulation.engine import apply_decision
@@ -15,6 +18,7 @@ from services.event_engine import check_stat_events
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from services.ai_feedback import generate_ai_feedback
+
 
 MAX_STAGES = 20
 
@@ -330,10 +334,12 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
 
     # Only run AI if the game actually ended
     if game_over:
-        ai_feedback = generate_ai_feedback({
-            "career_id": session.career_id,
-            **result
-        })
+        ai_feedback = None
+        if result.get("game_over") and "summary" in result:
+            ai_feedback = generate_ai_feedback({
+                "career_id": session.career_id,
+                **result
+            })
         result["ai_feedback"] = ai_feedback
 
     return result
