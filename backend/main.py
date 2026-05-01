@@ -19,9 +19,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from services.ai_feedback import generate_ai_feedback
 
-
 MAX_STAGES = 20
-
 
 Base.metadata.create_all(bind=engine)
 
@@ -334,12 +332,21 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
 
     # Only run AI if the game actually ended
     if game_over:
-        ai_feedback = None
-        if result.get("game_over") and "summary" in result:
-            ai_feedback = generate_ai_feedback({
-                "career_id": session.career_id,
-                **result
-            })
+        dominant_skill = max(skill_state, key=skill_state.get)
+        weakest_skill = min(skill_state, key=skill_state.get)
+        performance_score = round(sum(skill_state.values()) - sum(system_state.values()), 2)
+
+        result["summary"] = {
+            "dominant_skill": dominant_skill,
+            "weakest_skill": weakest_skill,
+            "performance_score": performance_score
+        }
+
+        ai_feedback = generate_ai_feedback({
+            "career_id": session.career_id,
+            **result
+        })
+
         result["ai_feedback"] = ai_feedback
 
     return result

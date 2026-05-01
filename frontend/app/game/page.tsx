@@ -33,7 +33,8 @@ export default function Home() {
 
   const [skills, setSkills] = useState<SkillState>({});
   const [system, setSystem] = useState<SystemState>({});
-  const [history, setHistory] = useState<any[]>([])
+  const [history, setHistory] = useState<any[]>([]);
+  const [aiFeedback, setAiFeedback] = useState<any | null>(null)
 
   const [skillsSchema, setSkillsSchema] = useState<string[]>([]);
   const [systemSchema, setSystemSchema] = useState<string[]>([]);
@@ -181,6 +182,10 @@ export default function Home() {
         setHistory(data.decision_history)
       }
 
+      if (data.ai_feedback) {
+        setAiFeedback(data.ai_feedback)
+      }
+
       if (!res.ok) {
         console.error("Decision rejected:", data);
         setStageLocked(false);
@@ -305,14 +310,47 @@ export default function Home() {
           <strong>Overall Score:</strong> {performanceScore}
         </p>
 
-        <h2>Decision Timeline</h2>
+        {aiFeedback && (
+          <>
+            <h2>AI Career Coach Analysis</h2>
 
-        {history && history.map((h: any, index: number) => (
-          <div key={index} style={{marginBottom: "10px"}}>
-            <strong>Stage {h.stage}</strong> — {h.title}
-            <div>Choice: {h.decision_text}</div>
-          </div>
-        ))}
+            <p>
+              <strong>Analysis:</strong> {aiFeedback.analysis}
+            </p>
+
+            <p><strong>Strengths:</strong></p>
+            <ul>
+              {aiFeedback.strengths?.map((s: string, i: number) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+
+            <p><strong>Weaknesses:</strong></p>
+            <ul>
+              {aiFeedback.weaknesses?.map((w: string, i: number) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+
+            <p>
+              <strong>Career Advice:</strong> {aiFeedback.career_advice}
+            </p>
+          </>
+        )}
+
+        <details>
+          <summary style={{ cursor: "pointer", fontWeight: "bold", fontSize: "1.2rem" }}>
+            Decision Timeline
+          </summary>
+
+          {history && history.map((h: any, index: number) => (
+            <div key={index} style={{marginBottom: "10px"}}>
+              <strong>Stage {h.stage}</strong> — {h.title}
+              <div>Choice: {h.decision_text}</div>
+            </div>
+          ))}
+
+        </details>
 
         <h2>Final Skills</h2>
         <ul>
