@@ -97,8 +97,8 @@ export default function Home() {
 
         const data = await res.json();
 
-        if (data.history) {
-          setHistory(data.history)
+        if (data.decision_history) {
+          setHistory(data.decision_history);
         }
 
         if (data.game_over) {
@@ -177,8 +177,8 @@ export default function Home() {
 
       const data = await res.json();
 
-      if (data.history) {
-        setHistory(data.history);
+      if (data.decision_history) {
+        setHistory(data.decision_history)
       }
 
       if (!res.ok) {
