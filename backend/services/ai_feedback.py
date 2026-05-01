@@ -56,4 +56,14 @@ Provide feedback in JSON format:
         ]
     )
 
-    return response.choices[0].message.content
+    import json
+
+    content = response.choices[0].message.content
+
+    # remove markdown code fences if present
+    content = content.replace("```json", "").replace("```", "").strip()
+
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        return {"analysis": content}
