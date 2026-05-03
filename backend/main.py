@@ -154,6 +154,19 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
         risk_factor=decision.get("risk_factor", 1.0)
     )
 
+    # Track behavioral flags from decisions
+    flags = session.flags or {}
+
+    decision_text = decision.get("text", "").lower()
+
+    if "risky" in decision_text or "bold" in decision_text:
+        flags["aggressive_strategy"] = True
+
+    if "safe" in decision_text:
+        flags["cautious_style"] = True
+
+    session.flags = flags
+
     # Determine next stage
     def resolve_next_stage(next_stage_config, system_state):
 
