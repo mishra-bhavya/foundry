@@ -73,6 +73,7 @@ def get_stage(stage_id: int, session_id: int = Query(...)):
             session.career_id,
             session.skills,
             session.system_state,
+            session.flags,
             stage_id
         )
 
@@ -114,6 +115,7 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
             session.career_id,
             session.skills,
             session.system_state,
+            session.flags,
             current_stage
         )
 

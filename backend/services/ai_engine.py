@@ -1,6 +1,68 @@
 import random
 
-def generate_stage(career_id, skill_state, system_state, stage_number):
+decision_text_bank = {
+    "team_conflict": {
+        "safe": [
+            "De-escalate tensions and align everyone calmly",
+            "Hold a structured discussion to resolve disagreements"
+        ],
+        "balanced": [
+            "Address the conflict while keeping progress steady",
+            "Mediate quickly and push forward with a compromise"
+        ],
+        "risky": [
+            "Force a decision and override disagreements",
+            "Take control and push your preferred direction aggressively"
+        ]
+    },
+
+    "technical_crisis": {
+        "safe": [
+            "Stabilize the system before making changes",
+            "Fix core issues before attempting anything new"
+        ],
+        "balanced": [
+            "Patch the issue while continuing development",
+            "Balance debugging with forward progress"
+        ],
+        "risky": [
+            "Ignore the instability and push new features",
+            "Attempt a bold fix that could either solve or worsen things"
+        ]
+    },
+
+    "client_pressure": {
+        "safe": [
+            "Manage expectations and slow things down",
+            "Clarify deliverables before proceeding"
+        ],
+        "balanced": [
+            "Adapt to demands while protecting quality",
+            "Negotiate scope while continuing progress"
+        ],
+        "risky": [
+            "Promise aggressive results under pressure",
+            "Take on unrealistic expectations to impress"
+        ]
+    },
+
+    "critical_decision": {
+        "safe": [
+            "Delay the decision until more clarity emerges",
+            "Gather more data before committing"
+        ],
+        "balanced": [
+            "Make an informed decision with calculated risk",
+            "Weigh trade-offs and move forward confidently"
+        ],
+        "risky": [
+            "Trust instincts and act immediately",
+            "Make a bold call without full information"
+        ]
+    }
+}
+
+def generate_stage(career_id, skill_state, system_state, flags, stage_number):
 
     if stage_number < 10:
         difficulty = 1.0
@@ -11,24 +73,6 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
 
     skill_keys = list(skill_state.keys())
     system_keys = list(system_state.keys())
-
-    decision_text_bank = {
-        "safe": [
-            "Follow established protocol carefully",
-            "Consult colleagues before acting",
-            "Delay action until more information is available"
-        ],
-        "balanced": [
-            "Take a balanced and calculated approach",
-            "Combine caution with decisive action",
-            "Proceed carefully while adapting to the situation"
-        ],
-        "risky": [
-            "Make a bold and risky move",
-            "Act quickly and trust your instincts",
-            "Take an aggressive approach despite uncertainty"
-        ]
-    }
 
     scenario_bank = {
 
@@ -142,16 +186,27 @@ def generate_stage(career_id, skill_state, system_state, stage_number):
 
     career_scenarios = scenario_bank.get(career_id, {})
 
+    # Always pick a category first
     category = random.choice(list(career_scenarios.keys()))
 
-    scenario = random.choice(career_scenarios[category])
+    # Then decide scenario
+    if flags and flags.get("aggressive_strategy"):
+        scenario = "Your previous aggressive decision is now creating pressure and scrutiny."
+
+    elif flags and flags.get("cautious_style"):
+        scenario = "Your cautious decisions slowed momentum but helped maintain stability."
+
+    else:
+        scenario = random.choice(career_scenarios[category])
 
     skill_key = skill_keys[stage_number % len(skill_keys)]
     system_key = system_keys[stage_number % len(system_keys)]
 
-    safe_text = random.choice(decision_text_bank["safe"])
-    balanced_text = random.choice(decision_text_bank["balanced"])
-    risky_text = random.choice(decision_text_bank["risky"])
+    category_decisions = decision_text_bank.get(category, decision_text_bank["critical_decision"])
+
+    safe_text = random.choice(category_decisions["safe"])
+    balanced_text = random.choice(category_decisions["balanced"])
+    risky_text = random.choice(category_decisions["risky"])
 
     return {
         "title": f"{career_id.capitalize()} Scenario",
