@@ -20,5 +20,32 @@ Foundry is designed to simulate real-life career decision-making, helping users 
 - 🔄 Decision-based progression
 - 📊 Dynamic outcomes based on user choices
 
-## Status
-🚧 In Development
+## 🚧 Development Status
+
+Foundry is currently under active development.
+
+Planned improvements:
+- More career paths
+- Enhanced decision complexity
+- Improved UI/UX
+- Save/load system
+
+## 📌 Progress
+
+Foundry has moved beyond a basic concept and now has a working core system with structured gameplay flow. Current efforts are focused on expanding depth and improving user experience.
+
+## 🛣️ Roadmap
+
+### ✅ Completed Foundation
+- Core decision-making system implemented  
+- Initial career path structure designed  
+- Basic game flow established  
+
+### 🚧 In Progress
+- Expanding branching decision outcomes  
+- Improving game logic depth  
+
+### 🔜 Planned Enhancements
+- UI/UX improvements  
+- Game balancing and progression tuning  
+- Save/load system  
