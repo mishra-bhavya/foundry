@@ -1,6 +1,6 @@
 # Foundry
 
-Foundry is an interactive career simulation game where users explore different career paths through decision-based gameplay.
+Foundry is an interactive career simulation game where players explore different career paths through meaningful decisions and consequences.
 
 ## Features
 - 🎯 Multiple career paths
