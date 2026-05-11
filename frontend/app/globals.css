@@ -1,26 +1,483 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0B0B0D;
+
+  --panel: rgba(18, 18, 22, 0.88);
+  --panel-border: rgba(255, 140, 60, 0.14);
+
+  --foreground: #F5F1EA;
+  --muted: #A6A09A;
+
+  --accent: #FF8A3D;
+  --accent-soft: #A47DAB;
+
+  --success: #7FA36B;
+  --danger: #D96B43;
+
+  --steel: #1B1D22;
+  --ember: #FF6B2D;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  margin: 0;
+  min-height: 100vh;
+
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+
+  background:
+    linear-gradient(
+      rgba(6,6,8,0.80),
+      rgba(6,6,8,0.90)
+    ),
+
+    radial-gradient(
+      circle at top left,
+      rgba(255,138,61,0.08),
+      transparent 24%
+    ),
+
+    radial-gradient(
+      circle at bottom right,
+      rgba(255,90,54,0.08),
+      transparent 22%
+    ),
+
+    url("/foundry-bg-2.jpg")
+      center/cover fixed;
+
+  background-blend-mode:
+    normal,
+    screen,
+    screen,
+    normal;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* SUBTLE INDUSTRIAL OVERLAY */
+
+body::before {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      rgba(255,255,255,0.015),
+      rgba(255,255,255,0)
+    ),
+
+    repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.015) 3px
+    );
+
+  opacity: 0.4;
+
+  mix-blend-mode: soft-light;
+}
+
+/* TYPOGRAPHY */
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+
+  letter-spacing: -0.04em;
+
+  color: var(--foreground);
+}
+
+h1 {
+  font-size: clamp(3rem, 6vw, 5.5rem);
+
+  line-height: 0.92;
+
+  font-weight: 800;
+}
+
+h2 {
+  font-weight: 700;
+}
+
+p {
+  line-height: 1.7;
+
+  color: var(--muted);
+}
+
+button {
+  font: inherit;
+
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(255,138,61,0.3);
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.14);
+
+  border-radius: 999px;
+}
+
+/* MAIN PANELS */
+
+.glass-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(36,32,29,0.86),
+      rgba(24,22,20,0.94)
+    );
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  backdrop-filter: blur(14px);
+
+  box-shadow: var(--shadow);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+/* EMBER EDGE GLOW */
+
+.glass-card::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255,138,61,0.10),
+      transparent 20%,
+      transparent 80%,
+      rgba(255,90,54,0.06)
+    );
+
+  pointer-events: none;
+}
+
+/* RIGHT SIDEBAR */
+
+.stat-panel {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(26,23,20,0.94),
+      rgba(18,16,14,0.98)
+    );
+}
+
+/* CAREER LABEL */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.18em;
+
+  font-size: 0.88rem;
+
+  color: #D3C4B2;
+}
+
+.eyebrow::before {
+  content: "";
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 999px;
+
+  background: var(--ember);
+
+  box-shadow:
+    0 0 18px rgba(255,138,61,0.85);
+}
+
+/* CHOICE CARDS */
+
+.choice-card {
+  background:
+  linear-gradient(
+    180deg,
+    rgba(18,16,14,0.94),
+    rgba(10,9,8,0.98)
+  );
+
+  border: 1px solid rgba(255,138,61,0.16);
+
+  border-radius: 24px;
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+
+  color: var(--foreground);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.choice-card::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,138,61,0.08),
+      transparent 25%
+    );
+
+  opacity: 0;
+
+  transition: opacity 180ms ease;
+}
+
+.choice-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(255,138,61,0.30);
+
+  background:
+  linear-gradient(
+    180deg,
+    rgba(48,24,12,0.98),
+    rgba(18,10,8,0.98)
+  );
+
+  box-shadow:
+    0 10px 40px rgba(255,138,61,0.30);
+}
+
+.choice-card:hover::before {
+  opacity: 1;
+}
+
+.choice-card.selected {
+  border-color: rgba(255,138,61,0.45);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(72,32,12,0.96),
+      rgba(26,14,10,0.96)
+    );
+
+  box-shadow:
+    0 0 0 1px rgba(255,138,61,0.18),
+    0 12px 44px rgba(255,138,61,0.24);
+}
+
+/* STAT BARS */
+
+.stat-bar {
+  height: 10px;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.06);
+}
+
+.stat-fill-skill {
+  background:
+    linear-gradient(
+      90deg,
+      #6F7B86,
+      #A6B7C8
+    );
+}
+
+.stat-fill-positive {
+  background:
+    linear-gradient(
+      90deg,
+      #6B8A63,
+      #8FB184
+    );
+}
+
+.stat-fill-warning {
+  background:
+    linear-gradient(
+      90deg,
+      #FF8A3D,
+      #FFB36B
+    );
+}
+
+.stat-fill-danger {
+  background:
+    linear-gradient(
+      90deg,
+      #D1493F,
+      #FF7A59
+    );
+}
+
+/* EFFECT BADGES */
+
+.badge-positive {
+  background: rgba(114,128,106,0.14);
+
+  color: #D6E6CF;
+
+  border: 1px solid rgba(114,128,106,0.24);
+}
+
+.badge-negative {
+  background: rgba(209,73,63,0.12);
+
+  color: #FFC0B5;
+
+  border: 1px solid rgba(209,73,63,0.22);
+}
+
+.badge-neutral {
+  background: rgba(255,138,61,0.12);
+
+  color: #FFD1A8;
+
+  border: 1px solid rgba(255,138,61,0.22);
+}
+
+/* BUTTONS */
+
+.primary-button {
+  background:
+    linear-gradient(
+      135deg,
+      #FF8A3D,
+      #E35A2F
+    );
+
+  color: white;
+
+  border: none;
+
+  border-radius: 18px;
+
+  padding: 1rem 1.4rem;
+
+  font-weight: 700;
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+
+  box-shadow:
+    0 10px 30px rgba(255,138,61,0.25);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+
+  opacity: 0.96;
+}
+
+/* CAREER CARDS ON HOME SCREEN */
+
+.career-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(36,32,29,0.86),
+      rgba(24,22,20,0.94)
+    );
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  border-radius: 24px;
+
+  padding: 1.5rem;
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+
+  color: var(--foreground);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.career-card::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255,138,61,0.08),
+      transparent 30%
+    );
+
+  opacity: 0;
+
+  transition: opacity 180ms ease;
+}
+
+.career-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(255,138,61,0.25);
+
+  box-shadow:
+    0 12px 36px rgba(255,138,61,0.08);
+}
+
+.career-card:hover::before {
+  opacity: 1;
 }

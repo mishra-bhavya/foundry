@@ -395,228 +395,401 @@ export default function Home() {
   /* ---------------- MAIN GAME ---------------- */
   return (
     <main
-  style={{
-    minHeight: "100vh",
-    background: "#0d0d0d",
-    color: "#fff",
-    display: "flex",
-    justifyContent: "center",
-    padding: "2rem",
-  }}
->
-  <div
-    style={{
-      width: "100%",
-      maxWidth: "1100px",
-      display: "grid",
-      gridTemplateColumns: "2fr 1fr",
-      gap: "3rem",
-    }}
-  >
-    {/* LEFT SIDE */}
-    <div>
-      <h1>{stage.title}</h1>
-      <p style={{ opacity: 0.8 }}>{stage.description}</p>
-
-      <h2 style={{ marginTop: "2rem" }}>Decisions</h2>
-      {stage.decisions.map((decision: any) => {
-        const skillEffects = Object.entries(decision.impact?.skills || {}).filter(([key]) => skillsSchema.includes(key)) as [string, number][];
-        const systemEffects = Object.entries(decision.impact?.system || {}).filter(([key]) => systemSchema.includes(key)) as [string, number][];
-        return (
-        <button
-          key={decision.id}
-          onClick={() => handleDecision(decision.id)}
-          disabled={stageLocked}
+      style={{
+        minHeight: "100vh",
+        padding: "48px 32px",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1400px",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 2fr) 380px",
+          gap: "32px",
+          alignItems: "start",
+        }}
+      >
+        {/* LEFT SIDE */}
+        <section
+          className="glass-card"
           style={{
-            display: "block",
-            width: "100%",
-            margin: "1rem 0",
-            padding: "0.75rem 1rem",
-            background: "#1a1a1a",
-            border: "1px solid #333",
-            color: "#fff",
-            cursor: "pointer",
+            background: "var(--panel)",
+            border: "1px solid var(--panel-border)",
+            borderRadius: "24px",
+            padding: "40px",
+            backdropFilter: "blur(14px)",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
           }}
         >
-          {decision.text}
-
-          <div style={{ fontSize: "0.8rem", opacity: 0.7, marginTop: "6px" }}>
-            {skillEffects.map(([key, val]) => (
-              <div
-                key={key}
-                style={{ color: val > 0 ? "#4ade80" : "#f87171" }}
-              >
-                {val > 0 ? "+" : ""}{val} {key.replace(/_/g, " ")}
-              </div>
-            ))}
-
-            {systemEffects.map(([key, val]) => (
-              <div
-                key={key}
-                style={{ color: val > 0 ? "#4ade80" : "#f87171" }}
-              >
-                {val > 0 ? "+" : ""}{val} {key.replace(/_/g, " ")}
-              </div>
-            ))}
-          </div>
-
-        </button>
-        );
-      })}
-    </div>
-
-    {/* RIGHT SIDE - STATS PANEL */}
-    <div
-    style={{
-      background: "#141414",
-      padding: "1.5rem",
-      borderRadius: "10px",
-      border: "1px solid #222",
-      position: "sticky",
-      top: "2rem",
-      height: "fit-content",
-    }}
->
-    
-      <h2>Live Stats</h2>
-      <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1fr",
-    gap: "1rem",
-    marginTop: "1.5rem",
-  }}
->
-  {skillsSchema.map((key) => {
-      const value = skills?.[key] ?? 0;
-
-      return (
-        <div key={key}>
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              fontSize: "0.85rem",
-              marginBottom: "4px",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "24px",
             }}
           >
-            <span style={{ textTransform: "capitalize" }}>
-              {key.replace(/_/g, " ")}
+            <div
+              style={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "999px",
+                background: "var(--accent)",
+                boxShadow: "0 0 16px var(--accent)",
+              }}
+            />
+
+            <span
+              style={{
+                color: "var(--muted)",
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              Career Simulation
             </span>
-            <span>{Number(value).toFixed(1)}</span>
+          </div>
+
+          <h1
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: 700,
+              marginBottom: "18px",
+            }}
+          >
+            {stage.title}
+          </h1>
+
+          <p
+            style={{
+              color: "var(--muted)",
+              fontSize: "1.05rem",
+              lineHeight: 1.8,
+              maxWidth: "90%",
+            }}
+          >
+            {stage.description}
+          </p>
+
+          <div
+            style={{
+              marginTop: "48px",
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 600,
+              }}
+            >
+              Choose Your Response
+            </h2>
+
+            <span
+              style={{
+                color: "var(--muted)",
+                fontSize: "0.85rem",
+              }}
+            >
+              Decisions shape your career path
+            </span>
           </div>
 
           <div
             style={{
-              height: "6px",
-              background: "#222",
-              borderRadius: "4px",
-              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
             }}
           >
-            <div
-              style={{
-                width: `${Math.max(0, value * 10)}%`,
-                height: "100%",
-                background:
-                  value > 0 ? "#4caf50" : value < 0 ? "#f44336" : "#666",
-                transition: "width 0.4s ease",
-              }}
-            />
+            {stage.decisions.map((decision: any) => {
+              const skillEffects = Object.entries(
+                decision.impact?.skills || {}
+              ).filter(([key]) =>
+                skillsSchema.includes(key)
+              ) as [string, number][];
+
+              const systemEffects = Object.entries(
+                decision.impact?.system || {}
+              ).filter(([key]) =>
+                systemSchema.includes(key)
+              ) as [string, number][];
+
+              return (
+                <button
+                  key={decision.id}
+                  onClick={() => handleDecision(decision.id)}
+                  disabled={stageLocked}
+                  style={{
+                    width: "100%",
+                    padding: "26px",
+                    borderRadius: "18px",
+                    border: "1px solid rgba(105, 71, 117, 0.18)",
+                    background:
+                      "linear-gradient(180deg, rgba(18,16,14,0.96), rgba(10,9,8,0.98))",
+                    color: "var(--foreground)",
+                    cursor: "pointer",
+                    transition: "all 0.25s ease",
+                    textAlign: "left",
+                    backdropFilter: "blur(10px)",
+                    boxShadow: "0 8px 30px rgba(80,50,90,0.08)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.borderColor =
+                      "rgba(105,71,117,0.35)";
+                    e.currentTarget.style.background =
+                      "linear-gradient(180deg, rgba(52,24,10,0.98), rgba(18,10,8,0.98))";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0px)";
+                    e.currentTarget.style.borderColor =
+                      "rgba(105,71,117,0.18)";
+                    e.currentTarget.style.background =
+                      "linear-gradient(180deg, rgba(52,24,10,0.98), rgba(18,10,8,0.98))";
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "1.15rem",
+                      fontWeight: 600,
+                      marginBottom: "18px",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {decision.text}
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "10px",
+                    }}
+                  >
+                    {[...skillEffects, ...systemEffects].map(([key, val]) => (
+                      <div
+                        key={key}
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: "999px",
+                          fontSize: "0.82rem",
+                          background:
+                            val > 0
+                              ? "rgba(130,171,125,0.18)"
+                              : "rgba(160,82,45,0.16)",
+                          color:
+                            val > 0
+                              ? "#5E7C5A"
+                              : "#9C4F2D",
+                          border:
+                            val > 0
+                              ? "1px solid rgba(130,171,125,0.28)"
+                              : "1px solid rgba(160,82,45,0.24)"
+                        }}
+                      >
+                        {val > 0 ? "+" : ""}
+                        {val} {key.replace(/_/g, " ")}
+                      </div>
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        </div>
-      );
-    })}
+        </section>
 
-    <h3 style={{ marginTop: "2rem" }}>System Pressure</h3>
-
-    {systemSchema.map((key) => {
-      const value = system[key] ?? 0;
-
-      const status = getStatStatus(key, value);
-
-      const positiveStats = [
-        "reputation",
-        "client_trust",
-        "team_morale",
-        "patient_trust"
-      ];
-
-      const isGoodStat = positiveStats.includes(key);
-
-      let barColor = "#22c55e";
-      if (isGoodStat) {
-        if (value < 30) {
-          barColor = "#ef4444";
-        } else if (value < 60) {
-          barColor = "#facc15";
-        }
-      } else {
-        if (value >= 8) {
-          barColor = "#ef4444";
-        } else if (value >= 5) {
-          barColor = "#facc15";
-        }
-      }
-
-      return (
-        <div key={key}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span>{key.replace(/_/g, " ")}</span>
-            <span>{Math.round(value)}</span>
-          </div>
+        {/* RIGHT PANEL */}
+        <aside
+          style={{
+            background: "var(--panel)",
+            border: "1px solid var(--panel-border)",
+            borderRadius: "24px",
+            padding: "28px",
+            position: "sticky",
+            top: "32px",
+            height: "fit-content",
+            backdropFilter: "blur(14px)",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "1.5rem",
+              marginBottom: "28px",
+            }}
+          >
+            Live Stats
+          </h2>
 
           <div
             style={{
-              height: "6px",
-              background: "#333",
-              marginTop: "4px",
-              borderRadius: "3px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
             }}
           >
-            <div
-              style={{
-                width: `${Math.min(value * 10, 100)}%`,
-                height: "100%",
-                background: barColor,
-                borderRadius: "3px",
-              }}
-            />
+            {skillsSchema.map((key) => {
+              const value = skills?.[key] ?? 0;
+
+              return (
+                <div key={key}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "8px",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    <span>{key.replace(/_/g, " ")}</span>
+                    <span>{Number(value).toFixed(1)}</span>
+                  </div>
+
+                  <div
+                    style={{
+                      height: "8px",
+                      background: "rgba(255,255,255,0.06)",
+                      borderRadius: "999px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${Math.max(0, value * 10)}%`,
+                        height: "100%",
+                        borderRadius: "999px",
+                        background: "linear-gradient(to right, #38bdf8, #22c55e)",
+                        transition: "width 0.4s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      );
-    })}
-</div>
 
-    <div style={{ marginTop: "2rem" }}>
-  <button
-    onClick={handleHardReset}
-    style={{
-      width: "100%",
-      padding: "0.75rem",
-      background: "transparent",
-      border: "1px solid #333",
-      borderRadius: "6px",
-      color: "#bbb",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.borderColor = "#555";
-      e.currentTarget.style.color = "#fff";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.borderColor = "#333";
-      e.currentTarget.style.color = "#bbb";
-    }}
-  >
-    Reset Game
-  </button>
-</div>
+          <h3
+            style={{
+              marginTop: "40px",
+              marginBottom: "22px",
+              fontSize: "1.2rem",
+            }}
+          >
+            System Pressure
+          </h3>
 
-      {/* Your compact skill bars go here */}
-    </div>
-  </div>
-</main>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
+            }}
+          >
+            {systemSchema.map((key) => {
+              const value = system[key] ?? 0;
+
+              const positiveStats = [
+                "reputation",
+                "client_trust",
+                "team_morale",
+                "patient_trust",
+              ];
+
+              const isGoodStat = positiveStats.includes(key);
+
+              let barColor = "#22c55e";
+
+              if (isGoodStat) {
+                if (value < 30) {
+                  barColor = "#ef4444";
+                } else if (value < 60) {
+                  barColor = "#facc15";
+                }
+              } else {
+                if (value >= 8) {
+                  barColor = "#ef4444";
+                } else if (value >= 5) {
+                  barColor = "#facc15";
+                }
+              }
+
+              return (
+                <div key={key}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "8px",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    <span>{key.replace(/_/g, " ")}</span>
+                    <span>{Math.round(value)}</span>
+                  </div>
+
+                  <div
+                    style={{
+                      height: "8px",
+                      background: "rgba(255,255,255,0.06)",
+                      borderRadius: "999px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${Math.min(value * 10, 100)}%`,
+                        height: "100%",
+                        background: barColor,
+                        borderRadius: "999px",
+                        transition: "width 0.4s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={handleHardReset}
+            style={{
+              width: "100%",
+              marginTop: "36px",
+              padding: "14px",
+              borderRadius: "14px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.03)",
+              color: "#d1d5db",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor =
+                "rgba(255,255,255,0.18)";
+              e.currentTarget.style.background =
+                "rgba(255,255,255,0.06)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor =
+                "rgba(255,255,255,0.08)";
+              e.currentTarget.style.background =
+                "rgba(255,255,255,0.03)";
+            }}
+          >
+            Reset Simulation
+          </button>
+        </aside>
+      </div>
+    </main>
   );
 }
