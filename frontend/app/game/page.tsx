@@ -2,6 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import EnvelopeCard from "@/components/gameover/EnvelopeCard";
 
 type SkillState = Record<string, number>;
 type SystemState = Record<string, number>;
@@ -50,6 +51,9 @@ export default function Home() {
 
   const [gameOver, setGameOver] = useState(false);
   const [finalReason, setFinalReason] = useState<string | null>(null);
+
+  const [openPanel, setOpenPanel] = useState<string | null>("reflection");
+  const [openEnvelope, setOpenEnvelope] = useState<string | null>("reflection");
 
   const router = useRouter();
 
@@ -297,7 +301,13 @@ export default function Home() {
       Object.values(system).reduce((a, b) => a + b, 0);
 
     return (
-      <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+      <main style={{
+              padding: "2rem",
+              fontFamily: "sans-serif",
+              minHeight: "100vh",
+              position: "relative",
+            }}
+      >
         <h1>Simulation Complete</h1>
         <p>
           <strong>Ending Type:</strong> {endingType?.replace("_", " ")}
@@ -305,26 +315,104 @@ export default function Home() {
 
         <p>{finalReason}</p>
 
+        <div
+          style={{
+            position: "relative",
+
+            marginTop: "3rem",
+
+            minHeight: "900px",
+
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        ></div>
+
         {careerStory && (
-          <>
-            <h2>Career Reflection</h2>
-            <p>{careerStory}</p>
-          </>
+          <EnvelopeCard
+            title="Career Reflection"
+            statusLabel={
+              openEnvelope === "reflection" ? "OPEN" : "SEALED"
+            }
+            isOpen={openEnvelope === "reflection"}
+            onClick={() =>
+              setOpenEnvelope(
+                openEnvelope === "reflection"
+                  ? null
+                  : "reflection"
+              )
+            }
+          >
+            <p
+              style={{
+                fontSize: "1.15rem",
+                lineHeight: 1.9,
+                color: "var(--muted)",
+              }}
+            >
+              {careerStory}
+            </p>
+          </EnvelopeCard>
         )}
 
-        <h2>Performance Summary</h2>
+        <div
+          className="career-card"
+          onClick={() =>
+            setOpenPanel(openPanel === "performance" ? null : "performance")
+          }
+          style={{
+            marginTop: "1.5rem",
+            padding: "1.5rem",
+            cursor: "pointer",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <h2>Performance Summary</h2>
 
-        <p>
-          <strong>Dominant Skill:</strong> {dominantSkill.replace(/_/g, " ")}
-        </p>
+            <span
+              style={{
+                color: "var(--ember)",
+                fontSize: "0.9rem",
+                letterSpacing: "0.08em",
+              }}
+            >
+              {openPanel === "performance" ? "OPEN" : "SEALED"}
+            </span>
+          </div>
 
-        <p>
-          <strong>Weakest Skill:</strong> {weakestSkill.replace(/_/g, " ")}
-        </p>
+          {openPanel === "performance" && (
+            <div
+              style={{
+                marginTop: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.7rem",
+              }}
+            >
+              <p>
+                <strong>Dominant Skill:</strong>{" "}
+                {dominantSkill.replace(/_/g, " ")}
+              </p>
 
-        <p>
-          <strong>Overall Score:</strong> {performanceScore}
-        </p>
+              <p>
+                <strong>Weakest Skill:</strong>{" "}
+                {weakestSkill.replace(/_/g, " ")}
+              </p>
+
+              <p>
+                <strong>Overall Score:</strong>{" "}
+                {performanceScore.toFixed(1)}
+              </p>
+            </div>
+          )}
+        </div>
 
         {aiFeedback && (
           <>
