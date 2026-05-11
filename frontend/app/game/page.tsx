@@ -1,6 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type SkillState = Record<string, number>;
 type SystemState = Record<string, number>;
@@ -49,6 +50,8 @@ export default function Home() {
 
   const [gameOver, setGameOver] = useState(false);
   const [finalReason, setFinalReason] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const searchParams = useSearchParams();
   const careerId = searchParams.get("career");
@@ -374,15 +377,37 @@ export default function Home() {
           ))}
         </ul>
 
-        <button
-          onClick={handleRestart}
+        <div
           style={{
-            marginTop: "1rem",
-            padding: "0.5rem 1rem",
+            display: "flex",
+            gap: "1rem",
+            marginTop: "2rem",
+            flexWrap: "wrap",
           }}
         >
-          Play Again
-        </button>
+          <button
+            className="primary-button"
+            onClick={handleRestart}
+          >
+            Replay Career
+          </button>
+
+          <button
+            onClick={() => router.push("/")}
+            style={{
+              padding: "1rem 1.4rem",
+              borderRadius: "18px",
+              border: "1px solid rgba(255,140,60,0.18)",
+              background: "rgba(255,255,255,0.04)",
+              color: "var(--foreground)",
+              cursor: "pointer",
+              fontWeight: 600,
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            Choose Another Career
+          </button>
+        </div>
       </main>
     );
   }
