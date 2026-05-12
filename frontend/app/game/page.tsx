@@ -320,113 +320,167 @@ export default function Home() {
 
             marginTop: "3rem",
 
-            minHeight: "900px",
+            height: "520px",
 
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+
+            overflow: "hidden",
           }}
         ></div>
 
-        {careerStory && (
-          <EnvelopeCard
-            title="Career Reflection"
-            
-            isOpen={openEnvelope === "reflection"}
-            isDimmed={
-              openEnvelope !== null &&
-              openEnvelope !== "reflection"
-            }
-            onOpen={() => setOpenEnvelope("reflection")}
-            onClose={() => setOpenEnvelope(null)}
-          >
-            <p
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "900px",
+            marginTop: "-10rem",
+          }}
+        >
+          {careerStory && (
+            <div
               style={{
-                fontSize: "1.15rem",
-                lineHeight: 1.9,
-                color: "var(--muted)",
+                position: "absolute",
+                top: "0%",
+                left: "50%",
+                transform: "translateX(-50%)",
               }}
             >
-              {careerStory}
-            </p>
-          </EnvelopeCard>
-        )}
-
-        <EnvelopeCard
-          title="Performance Summary"
-          isOpen={openEnvelope === "performance"}
-          isDimmed={
-            openEnvelope !== null &&
-            openEnvelope !== "performance"
-          }
-          onOpen={() => setOpenEnvelope("performance")}
-          onClose={() => setOpenEnvelope(null)}
-        >
-          <p>
-            <strong>Dominant Skill:</strong>{" "}
-            {dominantSkill.replace(/_/g, " ")}
-          </p>
-
-          <p>
-            <strong>Weakest Skill:</strong>{" "}
-            {weakestSkill.replace(/_/g, " ")}
-          </p>
-
-          <p>
-            <strong>Overall Score:</strong>{" "}
-            {performanceScore.toFixed(1)}
-          </p>
-        </EnvelopeCard>
-
-        <EnvelopeCard
-          title="AI Feedback"
-          isOpen={openEnvelope === "feedback"}
-          isDimmed={
-            openEnvelope !== null &&
-            openEnvelope !== "feedback"
-          }
-          onOpen={() => setOpenEnvelope("feedback")}
-          onClose={() => setOpenEnvelope(null)}
-        >
-          <p>{aiFeedback?.analysis}</p>
-        </EnvelopeCard>
-
-        <EnvelopeCard
-          title="Decision Timeline"
-          isOpen={openEnvelope === "timeline"}
-          isDimmed={
-            openEnvelope !== null &&
-            openEnvelope !== "timeline"
-          }
-          onOpen={() => setOpenEnvelope("timeline")}
-          onClose={() => setOpenEnvelope(null)}
-        >
-          {history?.map((h: any, index: number) => (
-            <div key={index} style={{ marginBottom: "1rem" }}>
-              <strong>Stage {h.stage}</strong>
-              <div>{h.title}</div>
-              <div>{h.decision_text}</div>
+              <EnvelopeCard
+                title="Career Reflection"
+                isOpen={openEnvelope === "reflection"}
+                isDimmed={
+                  openEnvelope !== null &&
+                  openEnvelope !== "reflection"
+                }
+                onOpen={() => setOpenEnvelope("reflection")}
+                onClose={() => setOpenEnvelope(null)}
+              >
+                <p
+                  style={{
+                    fontSize: "1.15rem",
+                    lineHeight: 1.9,
+                    color: "var(--muted)",
+                  }}
+                >
+                  {careerStory}
+                </p>
+              </EnvelopeCard>
             </div>
-          ))}
-        </EnvelopeCard>
+          )}
 
-        <EnvelopeCard
-          title="Final Skills"
-          isOpen={openEnvelope === "skills"}
-          isDimmed={
-            openEnvelope !== null &&
-            openEnvelope !== "skills"
-          }
-          onOpen={() => setOpenEnvelope("skills")}
-          onClose={() => setOpenEnvelope(null)}
-        >
-          {skillsSchema.map((key) => (
-            <div key={key}>
-              {key.replace(/_/g, " ")}:{" "}
-              {Number(skills[key] ?? 0).toFixed(1)}
-            </div>
-          ))}
-        </EnvelopeCard>
+          <div
+            style={{
+              position: "absolute",
+              top: "28%",
+              left: "12%",
+            }}
+          >
+            <EnvelopeCard
+              title="Performance Summary"
+              isOpen={openEnvelope === "performance"}
+              isDimmed={
+                openEnvelope !== null &&
+                openEnvelope !== "performance"
+              }
+              onOpen={() => setOpenEnvelope("performance")}
+              onClose={() => setOpenEnvelope(null)}
+            >
+              <p>
+                <strong>Dominant Skill:</strong>{" "}
+                {dominantSkill.replace(/_/g, " ")}
+              </p>
+
+              <p>
+                <strong>Weakest Skill:</strong>{" "}
+                {weakestSkill.replace(/_/g, " ")}
+              </p>
+
+              <p>
+                <strong>Overall Score:</strong>{" "}
+                {performanceScore.toFixed(1)}
+              </p>
+            </EnvelopeCard>
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              top: "28%",
+              right: "12%",
+            }}
+          >
+            <EnvelopeCard
+              title="AI Feedback"
+              isOpen={openEnvelope === "feedback"}
+              isDimmed={
+                openEnvelope !== null &&
+                openEnvelope !== "feedback"
+              }
+              onOpen={() => setOpenEnvelope("feedback")}
+              onClose={() => setOpenEnvelope(null)}
+            >
+              <p>{aiFeedback?.analysis}</p>
+            </EnvelopeCard>
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10%",
+              left: "22%",
+            }}
+          >
+            <EnvelopeCard
+              title="Decision Timeline"
+              isOpen={openEnvelope === "timeline"}
+              isDimmed={
+                openEnvelope !== null &&
+                openEnvelope !== "timeline"
+              }
+              onOpen={() => setOpenEnvelope("timeline")}
+              onClose={() => setOpenEnvelope(null)}
+            >
+              {history?.map((h: any, index: number) => (
+                <div
+                  key={index}
+                  style={{ marginBottom: "1rem" }}
+                >
+                  <strong>Stage {h.stage}</strong>
+                  <div>{h.title}</div>
+                  <div>{h.decision_text}</div>
+                </div>
+              ))}
+            </EnvelopeCard>
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10%",
+              right: "22%",
+            }}
+          >
+            <EnvelopeCard
+              title="Final Skills"
+              isOpen={openEnvelope === "skills"}
+              isDimmed={
+                openEnvelope !== null &&
+                openEnvelope !== "skills"
+              }
+              onOpen={() => setOpenEnvelope("skills")}
+              onClose={() => setOpenEnvelope(null)}
+            >
+              {skillsSchema.map((key) => (
+                <div key={key}>
+                  {key.replace(/_/g, " ")}:{" "}
+                  {Number(skills[key] ?? 0).toFixed(1)}
+                </div>
+              ))}
+            </EnvelopeCard>
+          </div>
+        </div>
 
         <div
           style={{
