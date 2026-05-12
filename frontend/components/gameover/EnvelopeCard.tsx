@@ -1,132 +1,97 @@
 "use client";
 
+import { motion } from "framer-motion";
+import styles from "./EnvelopeCard.module.css";
+
 type EnvelopeCardProps = {
   title: string;
-  statusLabel: string;
   isOpen: boolean;
-  onClick: () => void;
+  isDimmed?: boolean;
+  onOpen: () => void;
+  onClose: () => void;
   children: React.ReactNode;
 };
 
 export default function EnvelopeCard({
   title,
-  statusLabel,
   isOpen,
-  onClick,
+  isDimmed,
+  onOpen,
+  onClose,
   children,
 }: EnvelopeCardProps) {
   return (
-    <div
-      onClick={onClick}
-      style={{
-        width: isOpen ? "78vw" : "320px",
-
-        position: "absolute",
-
-        top: isOpen ? "50%" : undefined,
-        left: isOpen ? "50%" : undefined,
-
-        transform: isOpen
-        ? "translate(-50%, -50%) scale(1.04)"
-        : undefined,
-
+    <motion.div
+      layout
+      className={`${styles.envelope} ${
+        isDimmed ? styles.dimmed : ""
+      }`}
+      onClick={() => {
+        if (!isOpen) onOpen();
+      }}
+      animate={{
+        scale: isOpen ? 1.05 : 1,
         zIndex: isOpen ? 50 : 1,
-
-        cursor: "pointer",
-
-        borderRadius: "32px",
-        overflow: "hidden",
-
-        border: "1px solid rgba(255,140,60,0.18)",
-
-        background: isOpen
-          ? "linear-gradient(180deg, rgba(28,20,16,0.96), rgba(14,10,8,0.98))"
-          : "linear-gradient(180deg, rgba(20,16,14,0.88), rgba(10,8,7,0.92))",
-
-        boxShadow: isOpen
-          ? "0 30px 80px rgba(255,120,40,0.16)"
-          : "0 10px 30px rgba(0,0,0,0.35)",
-
-        padding: isOpen ? "2rem" : "1.4rem",
-
-        minHeight: isOpen ? "520px" : "160px",
-
-        transition: "all 260ms ease",
-
-        backdropFilter: "blur(18px)",
-
-
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
+      }}
+      transition={{
+        duration: 0.35,
       }}
     >
-      {/* EMBER GLOW */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-
-          background:
-            "linear-gradient(120deg, rgba(255,138,61,0.10), transparent 32%, transparent 70%, rgba(255,90,54,0.06))",
-
-          pointerEvents: "none",
+      {/* FLAP */}
+      <motion.div
+        className={styles.flap}
+        animate={{
+          rotateX: isOpen ? 180 : 0,
+        }}
+        transition={{
+          duration: 0.5,
         }}
       />
 
-      {/* HEADER */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2
-          style={{
-            margin: 0,
-            fontSize: "1.5rem",
-            fontWeight: 700,
+      {/* WAX SEAL */}
+      {!isOpen && (
+        <motion.div
+          className={styles.seal}
+          animate={{
+            scale: [1, 1.05, 1],
           }}
-        >
-          {title}
-        </h2>
-
-        <div
-          style={{
-            color: "#ff7a2f",
-            fontSize: "1rem",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
+          transition={{
+            repeat: Infinity,
+            duration: 2.4,
           }}
-        >
-          {statusLabel}
-        </div>
+        />
+      )}
+
+      {/* TITLE */}
+      <div className={styles.title}>
+        {title}
       </div>
 
-      {/* CONTENT */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-
-          marginTop: "1.5rem",
-
+      {/* PAPER */}
+      <motion.div
+        className={styles.paper}
+        animate={{
+          bottom: isOpen ? "6%" : "-100%",
           opacity: isOpen ? 1 : 0,
-
-          maxHeight: isOpen ? "1000px" : "0px",
-
-          overflow: "hidden",
-
-          transition:
-            "opacity 220ms ease, max-height 260ms ease",
+        }}
+        transition={{
+          duration: 0.45,
         }}
       >
-        {children}
-      </div>
-    </div>
+        <button
+          className={styles.closeButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+        >
+          ✕
+        </button>
+
+        <div className={styles.paperContent}>
+          {children}
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -52,7 +52,6 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
   const [finalReason, setFinalReason] = useState<string | null>(null);
 
-  const [openPanel, setOpenPanel] = useState<string | null>("reflection");
   const [openEnvelope, setOpenEnvelope] = useState<string | null>("reflection");
 
   const router = useRouter();
@@ -332,17 +331,14 @@ export default function Home() {
         {careerStory && (
           <EnvelopeCard
             title="Career Reflection"
-            statusLabel={
-              openEnvelope === "reflection" ? "OPEN" : "SEALED"
-            }
+            
             isOpen={openEnvelope === "reflection"}
-            onClick={() =>
-              setOpenEnvelope(
-                openEnvelope === "reflection"
-                  ? null
-                  : "reflection"
-              )
+            isDimmed={
+              openEnvelope !== null &&
+              openEnvelope !== "reflection"
             }
+            onOpen={() => setOpenEnvelope("reflection")}
+            onClose={() => setOpenEnvelope(null)}
           >
             <p
               style={{
@@ -356,114 +352,81 @@ export default function Home() {
           </EnvelopeCard>
         )}
 
-        <div
-          className="career-card"
-          onClick={() =>
-            setOpenPanel(openPanel === "performance" ? null : "performance")
+        <EnvelopeCard
+          title="Performance Summary"
+          isOpen={openEnvelope === "performance"}
+          isDimmed={
+            openEnvelope !== null &&
+            openEnvelope !== "performance"
           }
-          style={{
-            marginTop: "1.5rem",
-            padding: "1.5rem",
-            cursor: "pointer",
-          }}
+          onOpen={() => setOpenEnvelope("performance")}
+          onClose={() => setOpenEnvelope(null)}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h2>Performance Summary</h2>
+          <p>
+            <strong>Dominant Skill:</strong>{" "}
+            {dominantSkill.replace(/_/g, " ")}
+          </p>
 
-            <span
-              style={{
-                color: "var(--ember)",
-                fontSize: "0.9rem",
-                letterSpacing: "0.08em",
-              }}
-            >
-              {openPanel === "performance" ? "OPEN" : "SEALED"}
-            </span>
-          </div>
+          <p>
+            <strong>Weakest Skill:</strong>{" "}
+            {weakestSkill.replace(/_/g, " ")}
+          </p>
 
-          {openPanel === "performance" && (
-            <div
-              style={{
-                marginTop: "1rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.7rem",
-              }}
-            >
-              <p>
-                <strong>Dominant Skill:</strong>{" "}
-                {dominantSkill.replace(/_/g, " ")}
-              </p>
+          <p>
+            <strong>Overall Score:</strong>{" "}
+            {performanceScore.toFixed(1)}
+          </p>
+        </EnvelopeCard>
 
-              <p>
-                <strong>Weakest Skill:</strong>{" "}
-                {weakestSkill.replace(/_/g, " ")}
-              </p>
+        <EnvelopeCard
+          title="AI Feedback"
+          isOpen={openEnvelope === "feedback"}
+          isDimmed={
+            openEnvelope !== null &&
+            openEnvelope !== "feedback"
+          }
+          onOpen={() => setOpenEnvelope("feedback")}
+          onClose={() => setOpenEnvelope(null)}
+        >
+          <p>{aiFeedback?.analysis}</p>
+        </EnvelopeCard>
 
-              <p>
-                <strong>Overall Score:</strong>{" "}
-                {performanceScore.toFixed(1)}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {aiFeedback && (
-          <>
-            <h2>AI Career Coach Analysis</h2>
-
-            <p>
-              <strong>Analysis:</strong> {aiFeedback.analysis}
-            </p>
-
-            <p><strong>Strengths:</strong></p>
-            <ul>
-              {aiFeedback.strengths?.map((s: string, i: number) => (
-                <li key={i}>{s}</li>
-              ))}
-            </ul>
-
-            <p><strong>Weaknesses:</strong></p>
-            <ul>
-              {aiFeedback.weaknesses?.map((w: string, i: number) => (
-                <li key={i}>{w}</li>
-              ))}
-            </ul>
-
-            <p>
-              <strong>Career Advice:</strong> {aiFeedback.career_advice}
-            </p>
-          </>
-        )}
-
-        <details>
-          <summary style={{ cursor: "pointer", fontWeight: "bold", fontSize: "1.2rem" }}>
-            Decision Timeline
-          </summary>
-
-          {history && history.map((h: any, index: number) => (
-            <div key={index} style={{marginBottom: "10px"}}>
-              <strong>Stage {h.stage}</strong> — {h.title}
-              <div>Choice: {h.decision_text}</div>
+        <EnvelopeCard
+          title="Decision Timeline"
+          isOpen={openEnvelope === "timeline"}
+          isDimmed={
+            openEnvelope !== null &&
+            openEnvelope !== "timeline"
+          }
+          onOpen={() => setOpenEnvelope("timeline")}
+          onClose={() => setOpenEnvelope(null)}
+        >
+          {history?.map((h: any, index: number) => (
+            <div key={index} style={{ marginBottom: "1rem" }}>
+              <strong>Stage {h.stage}</strong>
+              <div>{h.title}</div>
+              <div>{h.decision_text}</div>
             </div>
           ))}
+        </EnvelopeCard>
 
-        </details>
-
-        <h2>Final Skills</h2>
-        <ul>
+        <EnvelopeCard
+          title="Final Skills"
+          isOpen={openEnvelope === "skills"}
+          isDimmed={
+            openEnvelope !== null &&
+            openEnvelope !== "skills"
+          }
+          onOpen={() => setOpenEnvelope("skills")}
+          onClose={() => setOpenEnvelope(null)}
+        >
           {skillsSchema.map((key) => (
-            <li key={key}>
-              {key.replace(/_/g, " ")}: {Number(skills[key] ?? 0).toFixed(1)}
-            </li>
+            <div key={key}>
+              {key.replace(/_/g, " ")}:{" "}
+              {Number(skills[key] ?? 0).toFixed(1)}
+            </div>
           ))}
-        </ul>
+        </EnvelopeCard>
 
         <div
           style={{
