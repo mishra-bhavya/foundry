@@ -27,20 +27,19 @@ export default function EnvelopeCard({
         isDimmed ? styles.dimmed : ""
       }`}
 
-      style={{
-        position: isOpen ? "fixed" : "relative",
-      }}
-
       onClick={() => {
         if (!isOpen) onOpen();
       }}
       animate={{
-        scale: isOpen ? 1.35 : 1,
-
-        x: isOpen ? "50vw" : 0,
-        y: isOpen ? "32vh" : 0,
-
+        scale: isOpen ? 1.45 : 1,
+        top: isOpen ? "50%" : "0%",
+        left: isOpen ? "50%" : "0%",
+        x: isOpen ? "-50%" : "0%",
+        y: isOpen ? "-50%" : "0%",
         zIndex: isOpen ? 999 : 1,
+      }}
+      style={{
+        position: isOpen ? "fixed" : "relative",
       }}
       transition={{
         duration: 0.35,

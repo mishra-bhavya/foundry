@@ -318,7 +318,7 @@ export default function Home() {
           style={{
             position: "relative",
 
-            marginTop: "3rem",
+            marginTop: "-20rem",
 
             height: "520px",
 
