@@ -9,7 +9,7 @@
   justify-content: center;
 
   border-radius: 28px;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
 
   border: 1px solid rgba(255, 140, 60, 0.18);
@@ -29,7 +29,10 @@
 
   transition:
     filter 220ms ease,
-    opacity 220ms ease;
+    opacity 220ms ease,
+    transform 250ms ease;
+
+  z-index: 1;
 }
 
 .dimmed {
@@ -58,6 +61,8 @@
   transform-origin: top center;
 
   z-index: 3;
+
+  transition: transform 250ms ease;
 }
 
 .seal {
@@ -99,6 +104,8 @@
   font-weight: 700;
 
   z-index: 2;
+
+  transition: opacity 220ms ease;
 }
 
 .paper {
@@ -106,41 +113,70 @@
   height: 82%;
 
   position: absolute;
+
   bottom: 12px;
   left: 50%;
+
   transform: translateX(-50%);
 
-  padding: 1.4rem;
+  padding: 1.5rem;
 
-  border-radius: 18px;
+  border-radius: 20px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(255,248,235,0.96),
-      rgba(232,220,200,0.98)
+      rgba(255,248,235,0.98),
+      rgba(232,220,200,0.99)
     );
 
   color: #1c140f;
 
   overflow-y: auto;
+  overflow-x: hidden;
 
   box-shadow:
     0 20px 50px rgba(0,0,0,0.35);
 
   z-index: 1;
+
+  opacity: 0;
+
+  transition:
+    transform 320ms ease,
+    width 320ms ease,
+    height 320ms ease,
+    opacity 220ms ease;
 }
 
 .paperOpen {
+  width: 360px;
+  height: 360px;
+
+  position: fixed;
+
+  top: 50%;
+  left: 50%;
+
   transform:
-    translateX(-50%)
-    translateY(-120px)
-    scale(1.08);
+    translate(-50%, -50%)
+    scale(1.02);
+
+  padding: 2rem;
+
+  opacity: 1;
+
+  z-index: 9999;
 }
 
 .paperContent {
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.7;
+
+  max-height: 100%;
+  overflow-y: auto;
+
+  padding-right: 0.3rem;
 }
 
 .closeButton {
@@ -154,7 +190,7 @@
 
   color: rgba(255,120,40,0.95);
 
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 700;
 
   cursor: pointer;
@@ -167,5 +203,16 @@
     position: relative !important;
     width: 100%;
     height: 160px;
+  }
+
+  .paperOpen {
+    width: 88vw;
+    height: 70vh;
+
+    padding: 1.5rem;
+  }
+
+  .paperContent {
+    font-size: 0.95rem;
   }
 }
