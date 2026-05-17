@@ -31,7 +31,7 @@ export default function EnvelopeCard({
         if (!isOpen) onOpen();
       }}
       animate={{
-        scale: isOpen ? 1.45 : 1,
+        scale: isOpen ? 2.2 : 1,
         top: isOpen ? "50%" : "0%",
         left: isOpen ? "50%" : "0%",
         x: isOpen ? "-50%" : "0%",
@@ -70,11 +70,6 @@ export default function EnvelopeCard({
         />
       )}
 
-      {/* TITLE */}
-      <div className={styles.title}>
-        {title}
-      </div>
-
       {/* PAPER */}
       <motion.div
         className={styles.paper}
@@ -97,6 +92,10 @@ export default function EnvelopeCard({
         </button>
 
         <div className={styles.paperContent}>
+          <h2 className={styles.paperTitle}>
+            {title}
+          </h2>
+
           {children}
         </div>
       </motion.div>
