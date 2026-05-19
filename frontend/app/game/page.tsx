@@ -52,7 +52,7 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
   const [finalReason, setFinalReason] = useState<string | null>(null);
 
-  const [openEnvelope, setOpenEnvelope] = useState<string | null>("reflection");
+  const [openEnvelope, setOpenEnvelope] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -313,6 +313,19 @@ export default function Home() {
         </p>
 
         <p>{finalReason}</p>
+        {careerStory && (
+          <p
+            style={{
+              marginTop: "1.5rem",
+              maxWidth: "720px",
+              fontSize: "1.1rem",
+              lineHeight: 1.9,
+              color: "var(--muted)",
+            }}
+          >
+            {careerStory}
+          </p>
+        )}
 
         <div
           style={{
@@ -338,37 +351,6 @@ export default function Home() {
             marginTop: "-10rem",
           }}
         >
-          {careerStory && (
-            <div
-              style={{
-                position: "absolute",
-                top: "0%",
-                left: "50%",
-                transform: "translateX(-50%)",
-              }}
-            >
-              <EnvelopeCard
-                title="Career Reflection"
-                isOpen={openEnvelope === "reflection"}
-                isDimmed={
-                  openEnvelope !== null &&
-                  openEnvelope !== "reflection"
-                }
-                onOpen={() => setOpenEnvelope("reflection")}
-                onClose={() => setOpenEnvelope(null)}
-              >
-                <p
-                  style={{
-                    fontSize: "1.15rem",
-                    lineHeight: 1.9,
-                    color: "var(--muted)",
-                  }}
-                >
-                  {careerStory}
-                </p>
-              </EnvelopeCard>
-            </div>
-          )}
 
           <div
             style={{
