@@ -345,20 +345,25 @@ export default function Home() {
 
         <div
           style={{
-            position: "relative",
             width: "100%",
-            height: "900px",
-            marginTop: "-10rem",
+            marginTop: "1rem",
+            transform: "translateY(-8rem)",
+            paddingBottom: "1.5rem",
+
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(280px, 1fr))",
+            rowGap: "3rem",
+            columnGap: "2.5rem",
+
+            justifyItems: "center",
+            alignItems: "center",
+
+            maxWidth: "900px",
+            marginInline: "auto",
           }}
         >
 
-          <div
-            style={{
-              position: "absolute",
-              top: "28%",
-              left: "12%",
-            }}
-          >
+          <div>
             <EnvelopeCard
               title="Performance Summary"
               isOpen={openEnvelope === "performance"}
@@ -386,13 +391,7 @@ export default function Home() {
             </EnvelopeCard>
           </div>
 
-          <div
-            style={{
-              position: "absolute",
-              top: "28%",
-              right: "12%",
-            }}
-          >
+          <div>
             <EnvelopeCard
               title="AI Feedback"
               isOpen={openEnvelope === "feedback"}
@@ -407,13 +406,7 @@ export default function Home() {
             </EnvelopeCard>
           </div>
 
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10%",
-              left: "22%",
-            }}
-          >
+          <div>
             <EnvelopeCard
               title="Decision Timeline"
               isOpen={openEnvelope === "timeline"}
@@ -437,13 +430,7 @@ export default function Home() {
             </EnvelopeCard>
           </div>
 
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10%",
-              right: "22%",
-            }}
-          >
+          <div>
             <EnvelopeCard
               title="Final Skills"
               isOpen={openEnvelope === "skills"}
