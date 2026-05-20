@@ -44,6 +44,18 @@ export default function Home() {
   const [careerStory, setCareerStory] = useState("");
 
   const [currentStage, setCurrentStage] = useState<number>(1);
+  const stagesRemaining = 20 - currentStage;
+
+  let stageMessage = "";
+
+  if (stagesRemaining === 5) {
+    stageMessage = "5 stages remaining";
+  } else if (stagesRemaining <= 2 && stagesRemaining > 0) {
+    stageMessage = "Final stretch";
+  } else if (stagesRemaining === 0) {
+    stageMessage = "Last stage";
+  }
+
   const [stageLocked, setStageLocked] = useState(false);
   const [sessionId, setSessionId] = useState<number | null>(null);
 
@@ -525,9 +537,48 @@ export default function Home() {
           boxShadow: "0 0 20px rgba(255,120,40,0.15)",
         }}
       >
-        Stage {currentStage} / 20
+        <div>
+          <div>
+            Stage {currentStage} / 20
+          </div>
+
+          {stageMessage && (
+            <div
+              style={{
+                fontSize: "0.72rem",
+                opacity: 0.75,
+                marginTop: "0.2rem",
+                fontWeight: 500,
+              }}
+            >
+              {stageMessage}
+            </div>
+          )}
+          <div
+            style={{
+              marginTop: "0.7rem",
+              width: "100%",
+              height: "4px",
+              borderRadius: "999px",
+              background: "rgba(255,255,255,0.08)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${(currentStage / 20) * 100}%`,
+                height: "100%",
+                background:
+                  "linear-gradient(90deg, #ff8c42 0%, #ffb36b 100%)",
+                borderRadius: "999px",
+                transition: "width 0.35s ease",
+                boxShadow: "0 0 10px rgba(255,140,66,0.5)",
+              }}
+            />
+          </div>
+        </div>
       </div>
-      
+
       <div
         style={{
           width: "100%",
