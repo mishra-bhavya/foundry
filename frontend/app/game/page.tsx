@@ -57,6 +57,12 @@ export default function Home() {
   }
 
   const [stageLocked, setStageLocked] = useState(false);
+
+  const [lastDecisionEffects, setLastDecisionEffects] = useState<{
+    skills: Record<string, number>;
+    system: Record<string, number>;
+  } | null>(null);
+
   const [sessionId, setSessionId] = useState<number | null>(null);
 
   const [endingType, setEndingType] = useState<string | null>(null);
@@ -65,6 +71,7 @@ export default function Home() {
   const [finalReason, setFinalReason] = useState<string | null>(null);
 
   const [openEnvelope, setOpenEnvelope] = useState<string | null>(null);
+  const [floatingEffects, setFloatingEffects] = useState<any[]>([]);
 
   const router = useRouter();
 
@@ -179,7 +186,7 @@ export default function Home() {
   }
 
   /* ---------------- HANDLE DECISION ---------------- */
-  async function handleDecision(decisionId: number) {
+  async function handleDecision(decision: any) {
     if (stageLocked || !sessionId) return;
 
     setStageLocked(true);
@@ -192,7 +199,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           session_id: sessionId,
-          decision_id: decisionId,
+          decision_id: decision.id,
         }),
       });
 
@@ -220,6 +227,10 @@ export default function Home() {
         ...prev,
         ...data.system
       }));
+      setLastDecisionEffects({
+        skills: data.skills || {},
+        system: data.system || {},
+      });
 
       if (data.game_over) {
         setGameOver(true);
@@ -249,13 +260,14 @@ export default function Home() {
         if (data.next_stage !== null && data.next_stage !== undefined) {
           setCurrentStage(data.next_stage);
         }
-
+ 
         setStageLocked(false);
 
       }, 600);
 
     } catch (err) {
       console.error("Decision failed:", err);
+      setStageLocked(false);
     }
   }
 
@@ -704,7 +716,7 @@ export default function Home() {
               return (
                 <button
                   key={decision.id}
-                  onClick={() => handleDecision(decision.id)}
+                  onClick={() => handleDecision(decision)}
                   disabled={stageLocked}
                   style={{
                     width: "100%",
@@ -818,8 +830,28 @@ export default function Home() {
             {skillsSchema.map((key) => {
               const value = skills?.[key] ?? 0;
 
+              const effectValue = lastDecisionEffects?.skills?.[key];
+              const wasIncreased = effectValue && effectValue > 0;
+              const wasDecreased = effectValue && effectValue < 0;
+
               return (
-                <div key={key}>
+                <div
+                  key={key}
+                  style={{
+                    transition: "all 0.35s ease",
+                    transform: wasIncreased
+                      ? "scale(1.02)"
+                      : wasDecreased
+                      ? "scale(0.98)"
+                      : "scale(1)",
+
+                    filter: wasIncreased
+                      ? "drop-shadow(0 0 10px rgba(80,255,140,0.45))"
+                      : wasDecreased
+                      ? "drop-shadow(0 0 10px rgba(255,80,80,0.35))"
+                      : "none",
+                  }}
+                >
                   <div
                     style={{
                       display: "flex",
