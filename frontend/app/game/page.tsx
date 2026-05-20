@@ -503,6 +503,33 @@ export default function Home() {
     >
       <div
         style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+
+          padding: "0.7rem 1.2rem",
+
+          borderRadius: "999px",
+
+          background: "rgba(0,0,0,0.45)",
+          border: "1px solid rgba(255,140,60,0.25)",
+
+          backdropFilter: "blur(10px)",
+
+          color: "white",
+          fontWeight: 700,
+          fontSize: "0.95rem",
+
+          zIndex: 1000,
+
+          boxShadow: "0 0 20px rgba(255,120,40,0.15)",
+        }}
+      >
+        Stage {currentStage} / 20
+      </div>
+      
+      <div
+        style={{
           width: "100%",
           maxWidth: "1400px",
           display: "grid",
