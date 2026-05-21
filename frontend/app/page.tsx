@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import IntroScreen from "@/components/landing/IntroScreen";
+
 type Career = {
   id: string
   name: string
@@ -10,6 +12,7 @@ type Career = {
 }
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(true);
   const router = useRouter();
 
   const [careers, setCareers] = useState<Career[]>([]);
@@ -27,6 +30,14 @@ export default function Home() {
 
     fetchCareers();
   }, []);
+
+  if (showIntro) {
+    return (
+      <IntroScreen
+        onStart={() => setShowIntro(false)}
+      />
+    );
+  }
 
   return (
     <main style={{ padding: "3rem", fontFamily: "sans-serif" }}>

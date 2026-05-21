@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import EnvelopeCard from "@/components/gameover/EnvelopeCard";
+import LandingPage from "@/components/landing/LandingPage";
 
 type SkillState = Record<string, number>;
 type SystemState = Record<string, number>;
@@ -32,6 +33,7 @@ function getStatStatus(stat: string, value: number) {
 
 export default function Home() {
   const [stage, setStage] = useState<any>(null);
+  const [hasStarted, setHasStarted] = useState(false);
 
   const [skills, setSkills] = useState<SkillState>({});
   const [system, setSystem] = useState<SystemState>({});
@@ -82,8 +84,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    startGame();
-  }, []);
+    if (hasStarted) {
+      startGame();
+    }
+  }, [hasStarted]);
 
 
   function getStatStatus(stat: string, value: number) {
@@ -511,6 +515,14 @@ export default function Home() {
   }
 
   /* ---------------- LOADING ---------------- */
+  if (!hasStarted) {
+    return (
+      <LandingPage
+        onStart={() => setHasStarted(true)}
+      />
+    );
+  }
+
   if (!stage || !stage.decisions) {
     return <p>Loading...</p>;
   }
