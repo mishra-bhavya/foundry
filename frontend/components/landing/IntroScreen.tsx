@@ -1,10 +1,13 @@
 "use client";
 
+import HelpModal from "@/components/HelpModal";
 import { Imperial_Script } from "next/font/google";
 const imperial = Imperial_Script({
   subsets: ["latin"],
   weight: "400",
 });
+
+import { useState } from "react";
 
 type IntroScreenProps = {
   onStart: () => void;
@@ -13,6 +16,9 @@ type IntroScreenProps = {
 export default function IntroScreen({
   onStart,
 }: IntroScreenProps) {
+
+  const [showHelp, setShowHelp] = useState(false);
+
   return (
     <main
       style={{
@@ -76,6 +82,7 @@ export default function IntroScreen({
 
       {/* HELP BUTTON */}
       <button
+        onClick={() => setShowHelp(true)}
         style={{
           position: "absolute",
           top: "34px",
@@ -252,6 +259,10 @@ export default function IntroScreen({
             }
         }
     `}</style>
+    <HelpModal
+      isOpen={showHelp}
+      onClose={() => setShowHelp(false)}
+    />
     </main>
   );
 }
