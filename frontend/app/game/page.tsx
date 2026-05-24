@@ -3,7 +3,6 @@ import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import EnvelopeCard from "@/components/gameover/EnvelopeCard";
-import LandingPage from "@/components/landing/LandingPage";
 
 type SkillState = Record<string, number>;
 type SystemState = Record<string, number>;
@@ -33,7 +32,6 @@ function getStatStatus(stat: string, value: number) {
 
 export default function Home() {
   const [stage, setStage] = useState<any>(null);
-  const [hasStarted, setHasStarted] = useState(false);
 
   const [skills, setSkills] = useState<SkillState>({});
   const [system, setSystem] = useState<SystemState>({});
@@ -73,7 +71,6 @@ export default function Home() {
   const [finalReason, setFinalReason] = useState<string | null>(null);
 
   const [openEnvelope, setOpenEnvelope] = useState<string | null>(null);
-  const [floatingEffects, setFloatingEffects] = useState<any[]>([]);
 
   const router = useRouter();
 
@@ -83,35 +80,9 @@ export default function Home() {
     return <p>No career selected.</p>;
   }
 
-  useEffect(() => {
-    if (hasStarted) {
-      startGame();
-    }
-  }, [hasStarted]);
 
 
-  function getStatStatus(stat: string, value: number) {
-    const thresholds: Record<string, { warning: number; danger: number }> = {
-      burnout: { warning: 5, danger: 10 },
-      technical_debt: { warning: 8, danger: 15 },
-      time_pressure: { warning: 5, danger: 10 },
-      reputation: { warning: 20, danger: 10 },
-      team_morale: { warning: 40, danger: 20 }
-    };
-
-    const config = thresholds[stat];
-    if (!config) return "normal";
-
-    if (stat === "reputation" || stat === "team_morale") {
-      if (value < config.danger) return "danger";
-      if (value < config.warning) return "warning";
-      return "good";
-    }
-
-    if (value >= config.danger) return "danger";
-    if (value >= config.warning) return "warning";
-    return "good";
-  }
+  
 
 
   /* ---------------- FETCH STAGE ---------------- */
@@ -153,10 +124,11 @@ export default function Home() {
     }
 
     fetchStage();
-  }, [currentStage, gameOver, sessionId]);
+  }, [currentStage, gameOver, sessionId, stageLocked]);
 
   /* ---------------- START GAME ---------------- */
   async function startGame() {
+    if (sessionId) return;
     try {
       const res = await fetch(`http://localhost:8000/start?career_id=${careerId}`, {
           method: "POST"
@@ -176,7 +148,7 @@ export default function Home() {
       }));;
       setSystem(prev => ({
         ...prev,
-        ...data.system
+        ...data.system_state
       }));
       setCurrentStage(data.current_stage);
       setSkillsSchema(data.skills_schema);
@@ -188,6 +160,12 @@ export default function Home() {
       console.error("Start failed:", err);
     }
   }
+
+  useEffect(() => {
+    if (careerId) {
+      startGame();
+    }
+  }, [careerId]);
 
   /* ---------------- HANDLE DECISION ---------------- */
   async function handleDecision(decision: any) {
@@ -277,6 +255,7 @@ export default function Home() {
 
   /* ---------------- RESTART GAME ---------------- */
   async function handleRestart() {
+    setStage(null);
 
     setSkills({});
     setSystem({});
@@ -286,7 +265,6 @@ export default function Home() {
     setFinalReason(null);
 
     setCurrentStage(1);
-    setStage(null);
 
     await startGame();
   }
@@ -515,15 +493,7 @@ export default function Home() {
   }
 
   /* ---------------- LOADING ---------------- */
-  if (!hasStarted) {
-    return (
-      <LandingPage
-        onStart={() => setHasStarted(true)}
-      />
-    );
-  }
-
-  if (!stage || !stage.decisions) {
+  if (!stage) {
     return <p>Loading...</p>;
   }
 
@@ -712,7 +682,7 @@ export default function Home() {
               gap: "18px",
             }}
           >
-            {stage.decisions.map((decision: any) => {
+            {stage.decisions?.map((decision: any) => {
               const skillEffects = Object.entries(
                 decision.impact?.skills || {}
               ).filter(([key]) =>
