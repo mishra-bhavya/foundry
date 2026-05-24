@@ -71,6 +71,7 @@ export default function Home() {
   const [finalReason, setFinalReason] = useState<string | null>(null);
 
   const [openEnvelope, setOpenEnvelope] = useState<string | null>(null);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
 
   const router = useRouter();
 
@@ -79,10 +80,6 @@ export default function Home() {
   if (!careerId) {
     return <p>No career selected.</p>;
   }
-
-
-
-  
 
 
   /* ---------------- FETCH STAGE ---------------- */
@@ -125,6 +122,29 @@ export default function Home() {
 
     fetchStage();
   }, [currentStage, gameOver, sessionId, stageLocked]);
+
+  useEffect(() => {
+    function handleScroll() {
+      const scrollTop = window.scrollY;
+
+      const windowHeight = window.innerHeight;
+
+      const documentHeight = document.documentElement.scrollHeight;
+
+      const nearBottom =
+        scrollTop + windowHeight >= documentHeight - 120;
+
+      setShowScrollIndicator(!nearBottom);
+    }
+
+    window.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   /* ---------------- START GAME ---------------- */
   async function startGame() {
@@ -488,6 +508,35 @@ export default function Home() {
             Choose Another Career
           </button>
         </div>
+        {showScrollIndicator && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: "24px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 2000,
+
+              padding: "10px 18px",
+              borderRadius: "999px",
+
+              background: "rgba(10,10,10,0.72)",
+              border: "1px solid rgba(255,140,60,0.18)",
+
+              backdropFilter: "blur(10px)",
+
+              color: "rgba(255,255,255,0.75)",
+              fontSize: "0.9rem",
+              letterSpacing: "0.08em",
+
+              pointerEvents: "none",
+
+              boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+            }}
+          >
+            Scroll Down ↓
+          </div>
+        )}
       </main>
     );
   }
@@ -500,6 +549,7 @@ export default function Home() {
   /* ---------------- MAIN GAME ---------------- */
   return (
     <main
+      className="relative"
       style={{
         minHeight: "100vh",
         padding: "48px 32px",
@@ -981,6 +1031,35 @@ export default function Home() {
           </button>
         </aside>
       </div>
+      {showScrollIndicator && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 2000,
+
+            padding: "10px 18px",
+            borderRadius: "999px",
+
+            background: "rgba(10,10,10,0.72)",
+            border: "1px solid rgba(255,140,60,0.18)",
+
+            backdropFilter: "blur(10px)",
+
+            color: "rgba(255,255,255,0.75)",
+            fontSize: "0.9rem",
+            letterSpacing: "0.08em",
+
+            pointerEvents: "none",
+
+            boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+          }}
+        >
+          Scroll Down ↓
+          </div>
+        )}
     </main>
   );
 }
