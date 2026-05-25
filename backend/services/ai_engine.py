@@ -148,7 +148,7 @@ def generate_stage(career_id, skill_state, system_state, flags, stage_number):
         },
 
 
-        "hackathon": {
+        "startup_founder": {
 
             "team_conflict": [
                 "Your team disagrees on the product direction.",

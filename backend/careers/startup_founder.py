@@ -15,9 +15,9 @@ system_schema = [
 ]
 
 career_config = {
-    "id": "hackathon",
-    "name": "Hackathon",
-    "description": "Build a product under extreme time pressure while managing team dynamics and technical tradeoffs.",
+    "id": "startup_founder",
+    "name": "Startup Founder",
+    "description": "Build and scale a startup while balancing product vision, team dynamics, investor pressure, and technical execution.",
 
     "skills_schema": skills_schema,
     "system_schema": system_schema,
@@ -40,12 +40,12 @@ career_config = {
 
         "stages": {
         1: {
-            "title": "Hackathon Kickoff",
-            "description": "You and your 3 teammates are 6 hours into a 48-hour hackathon. The theme is AI for campus networking. Half the team wants to build an ambitious AI-matching system. The other half wants a simple but stable MVP that connects students based on interests.",
+            "title": "Founder Disagreement",
+            "description": "Your startup team is preparing the first public version of your product. One side wants to pursue an ambitious AI-driven networking platform with investor appeal. The other side argues for a smaller, stable MVP that users can trust immediately.",
             "decisions": [
                 {
                     "id": 1,
-                    "text": "Push for the ambitious AI-matching system.",
+                    "text": "Push for the ambitious AI-driven platform vision.",
                     "impact": {
                         "skills": {"product_thinking": 2, "technical_judgment": 1},
                         "system": {"technical_debt": 2, "team_morale": -5}
@@ -54,7 +54,7 @@ career_config = {
                 },
                 {
                     "id": 2,
-                    "text": "Build a simple but stable MVP that actually works.",
+                    "text": "Prioritize a lean MVP that can reliably retain early users.",
                     "impact": {
                         "skills": {"execution": 2, "resource_management": 1},
                         "system": {"technical_debt": -1, "team_morale": 5}
@@ -63,7 +63,7 @@ career_config = {
                 },
                 {
                     "id": 3,
-                    "text": "Spend more time debating before deciding.",
+                    "text": "Delay the decision and continue debating product direction.",
                     "impact": {
                         "skills": {"leadership": -1},
                         "system": {"time_pressure": 2, "team_morale": -3}
@@ -74,12 +74,12 @@ career_config = {
         },
 
         2: {
-            "title": "Midnight Reality Check",
-            "description": "It’s 2 AM. Bugs are appearing. Energy levels are dropping. The ambitious features are harder than expected.",
+            "title": "Scaling Problems",
+            "description": "Your startup gains unexpected traction after launch. New users are flooding in, bugs are surfacing, and the team is struggling to balance growth with stability.",
             "decisions": [
                 {
                     "id": 4,
-                    "text": "Refactor core logic to reduce technical debt.",
+                    "text": "Pause feature development to stabilize the platform.",
                     "impact": {
                         "skills": {"technical_judgment": 2},
                         "system": {"technical_debt": -2, "time_pressure": 1}
@@ -88,7 +88,7 @@ career_config = {
                 },
                 {
                     "id": 5,
-                    "text": "Ignore the mess and keep building features.",
+                    "text": "Keep shipping aggressively to maintain momentum.",
                     "impact": {
                         "skills": {"execution": 2},
                         "system": {"technical_debt": 2, "burnout": 2}
@@ -97,7 +97,7 @@ career_config = {
                 },
                 {
                     "id": 6,
-                    "text": "Let the team rest for a few hours.",
+                    "text": "Reduce workload temporarily to prevent burnout.",
                     "impact": {
                         "skills": {"leadership": 2},
                         "system": {"burnout": -2, "team_morale": 5, "time_pressure": 2}
@@ -108,12 +108,12 @@ career_config = {
         },
 
         3: {
-            "title": "Demo Preparation",
-            "description": "Final hours. Judges arrive soon. You must choose what to polish.",
+            "title": "Investor Attention",
+            "description": "Your startup is attracting early investor interest. With limited time and resources, you must decide what deserves immediate attention before an important product showcase.",
             "decisions": [
                 {
                     "id": 7,
-                    "text": "Polish UI and storytelling for judges.",
+                    "text": "Refine the product experience and public narrative.",
                     "impact": {
                         "skills": {"product_thinking": 1, "leadership": 1},
                         "system": {"reputation": 5}
@@ -122,7 +122,7 @@ career_config = {
                 },
                 {
                     "id": 8,
-                    "text": "Focus purely on backend stability.",
+                    "text": "Focus entirely on infrastructure and reliability.",
                     "impact": {
                         "skills": {"technical_judgment": 2},
                         "system": {"technical_debt": -1}
@@ -131,7 +131,7 @@ career_config = {
                 },
                 {
                     "id": 9,
-                    "text": "Try to add one last risky feature.",
+                    "text": "Rush a high-risk feature launch before the showcase.",
                     "impact": {
                         "skills": {"execution": 2},
                         "system": {"technical_debt": 3, "burnout": 2}
@@ -142,12 +142,12 @@ career_config = {
         },
 
         4: {
-            "title": "Final Presentation",
-            "description": "You present to the judges. Your clarity, confidence, and technical depth matter.",
+            "title": "Critical Pitch",
+            "description": "Your startup has reached a pivotal moment. Investors, partners, and early adopters are watching closely as you present the future of the company.",
             "decisions": [
                 {
                     "id": 10,
-                    "text": "Deliver a bold visionary pitch",
+                    "text": "Deliver an ambitious long-term vision for the company",
                     "impact": {
                         "skills": {
                             "product_thinking": 1,
@@ -161,7 +161,7 @@ career_config = {
                 },
                 {
                     "id": 11,
-                    "text": "Focus on technical depth",
+                    "text": "Demonstrate technical reliability and execution discipline",
                     "impact": {
                         "skills": {
                             "technical_judgment": 2

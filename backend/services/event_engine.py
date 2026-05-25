@@ -2,8 +2,8 @@ import random
 
 def check_stat_events(career_id, system_state):
 
-    # Hackathon crisis
-    if career_id == "hackathon":
+    # Startup founder crisis
+    if career_id == "startup_founder":
         if system_state.get("technical_debt", 0) > 15:
             return {
                 "title": "System Crash",
@@ -103,7 +103,7 @@ def generate_event(career_id):
             }
         ]
 
-    elif career_id == "hackathon":
+    elif career_id == "startup_founder":
         events = [
             {
                 "title": "Critical Bug",

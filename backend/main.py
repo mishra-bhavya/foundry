@@ -314,8 +314,8 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
 
     career = session.career_id
 
-    # Hackathon failures
-    if career == "hackathon":
+    # Startup founder failures
+    if career == "startup_founder":
         if system_state.get("team_morale", 100) <= 20:
             game_over = True
             reason = "Your team collapsed due to low morale."

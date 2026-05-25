@@ -77,6 +77,15 @@ export default function Home() {
 
   const searchParams = useSearchParams();
   const careerId = searchParams.get("career");
+  const formattedCareerName = careerId
+    ? careerId
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "";
+  const formattedCareerStory = careerStory?.replaceAll(
+              formattedCareerName.replace(/ /g, "_"),
+              formattedCareerName
+            );
   if (!careerId) {
     return <p>No career selected.</p>;
   }
@@ -339,7 +348,8 @@ export default function Home() {
         </p>
 
         <p>{finalReason}</p>
-        {careerStory && (
+        
+        {formattedCareerStory && (
           <p
             style={{
               marginTop: "1.5rem",
@@ -349,7 +359,7 @@ export default function Home() {
               color: "var(--muted)",
             }}
           >
-            {careerStory}
+            {formattedCareerStory}
           </p>
         )}
 
