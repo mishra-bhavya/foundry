@@ -209,7 +209,7 @@ def generate_stage(career_id, skill_state, system_state, flags, stage_number):
     risky_text = random.choice(category_decisions["risky"])
 
     return {
-        "title": f"{career_id.capitalize()} Scenario",
+        "title": f"{career_id.replace('_', ' ').title()} Scenario",
         "description": scenario,
         "decisions": [
             {

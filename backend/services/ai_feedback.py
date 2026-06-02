@@ -70,7 +70,7 @@ Provide feedback in JSON format:
 
 def generate_career_ending(career_id, dominant_skill, weakest_skill, ending_type):
 
-    career = career_id.capitalize()
+    career = career_id.replace("_", " ").title()
     strong = dominant_skill.replace("_", " ")
     weak = weakest_skill.replace("_", " ")
 
