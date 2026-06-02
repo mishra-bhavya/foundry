@@ -196,6 +196,12 @@ export default function Home() {
     }
   }, [careerId]);
 
+  useEffect(() => {
+    if (!sessionId && careerId) {
+      startGame();
+    }
+  }, [sessionId, careerId]);
+
   /* ---------------- HANDLE DECISION ---------------- */
   async function handleDecision(decision: any) {
     if (stageLocked || !sessionId) return;
@@ -284,6 +290,8 @@ export default function Home() {
 
   /* ---------------- RESTART GAME ---------------- */
   async function handleRestart() {
+    setSessionId(null);
+
     setStage(null);
 
     setSkills({});
@@ -295,7 +303,7 @@ export default function Home() {
 
     setCurrentStage(1);
 
-    await startGame();
+    router.refresh();
   }
 
   /* ---------------- RESET EVERYTHING ---------------- */
