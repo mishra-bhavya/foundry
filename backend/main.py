@@ -241,7 +241,7 @@ def make_decision(req: DecisionRequest, db: Session = Depends(get_db)):
             "next_stage": None,
             "game_over": True,
             "ending_type": ending_type,
-            "reason": f"{career_id.capitalize()} simulation finished.",
+            "reason": f"{career_id.replace('_', ' ').title()} simulation finished.",
             "career_story": career_story,
             "summary": {
                 "dominant_skill": dominant_skill,
