@@ -96,22 +96,26 @@ export default function Home() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginTop: "4rem",
+          marginTop: "6rem",
         }}
       >
         <div
           style={{
             position: "relative",
-            width: "260px",
-            height: "180px",
+            width: "800px",
+            height: "320px",
           }}
         >
           {careers.map((career, index) => {
-            const offset =
-              (index - selectedIndex + careers.length) %
-              careers.length;
+            const rawOffset =
+              index - selectedIndex;
 
-            if (offset > 2) return null;
+            if (
+              rawOffset < -2 ||
+              rawOffset > 2
+            ) {
+              return null;
+            }
 
             return (
               <div
@@ -119,21 +123,32 @@ export default function Home() {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  zIndex: 3 - offset,
+                  zIndex: 10 - Math.abs(rawOffset),
+
                   transform: `
-                    translateY(${offset * 12}px)
-                    scale(${1 - offset * 0.04})
+                    translateX(${rawOffset * 240}px)
+                    translateY(${Math.abs(rawOffset) * 40}px)
+                    rotate(${rawOffset * 16}deg)
+                    scale(${rawOffset === 0 ? 1.1 : 0.82})
                   `,
                 }}
               >
                 <EnvelopeCard
                   title={career.name}
                   isOpen={openedCareer === career.id}
-                  isDimmed={offset !== 0}
+                  isDimmed={false}
                   onOpen={() => setOpenedCareer(career.id)}
                   onClose={() => setOpenedCareer(null)}
                 >
-                  <p>{career.description}</p>
+                  <div
+                    style={{
+                      color: "#2d241d",
+                      fontSize: "1.05rem",
+                      lineHeight: "1.8",
+                    }}
+                  >
+                    {career.description}
+                  </div>
 
                   <button
                     onClick={() => selectCareer(career.id)}
@@ -156,31 +171,12 @@ export default function Home() {
         <div
           style={{
             marginTop: "2rem",
-            display: "flex",
-            gap: "1rem",
+            color: "rgba(255,255,255,0.6)",
+            fontSize: "0.9rem",
+            letterSpacing: "0.08em",
           }}
         >
-          <button
-            onClick={() =>
-              setSelectedIndex(
-                (selectedIndex - 1 + careers.length) %
-                  careers.length
-              )
-            }
-          >
-            ←
-          </button>
-
-          <button
-            onClick={() =>
-              setSelectedIndex(
-                (selectedIndex + 1) %
-                  careers.length
-              )
-            }
-          >
-            →
-          </button>
+          Click a dossier to inspect it
         </div>
       </div>
     </main>
