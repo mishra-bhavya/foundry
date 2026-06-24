@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import IntroScreen from "@/components/landing/IntroScreen";
-import EnvelopeCard from "@/components/gameover/EnvelopeCard";
+import CareerCard from "@/components/landing/CareerCard";
 
 type Career = {
   id: string
@@ -41,6 +41,8 @@ export default function Home() {
       />
     );
   }
+
+  console.log("USING APP PAGE");
 
   return (
     <main
@@ -102,8 +104,9 @@ export default function Home() {
         <div
           style={{
             position: "relative",
-            width: "800px",
-            height: "320px",
+            width: "100%",
+            maxWidth: "1200px",
+            height: "620px",
           }}
         >
           {careers.map((career, index) => {
@@ -126,43 +129,21 @@ export default function Home() {
                   zIndex: 10 - Math.abs(rawOffset),
 
                   transform: `
-                    translateX(${rawOffset * 240}px)
-                    translateY(${Math.abs(rawOffset) * 40}px)
-                    rotate(${rawOffset * 16}deg)
-                    scale(${rawOffset === 0 ? 1.1 : 0.82})
+                    translateX(${rawOffset * 180}px)
+                    scale(${rawOffset === 0 ? 1 : 0.85})
                   `,
                 }}
               >
-                <EnvelopeCard
-                  title={career.name}
-                  isOpen={openedCareer === career.id}
-                  isDimmed={false}
-                  onOpen={() => setOpenedCareer(career.id)}
-                  onClose={() => setOpenedCareer(null)}
-                >
-                  <div
-                    style={{
-                      color: "#2d241d",
-                      fontSize: "1.05rem",
-                      lineHeight: "1.8",
-                    }}
-                  >
-                    {career.description}
-                  </div>
-
-                  <button
-                    onClick={() => selectCareer(career.id)}
-                    style={{
-                      marginTop: "1rem",
-                      padding: "0.8rem 1rem",
-                      borderRadius: "12px",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Begin Career
-                  </button>
-                </EnvelopeCard>
+                <CareerCard
+                  career={{
+                    id: career.id,
+                    title: career.name,
+                    description: career.description,
+                  }}
+                  isActive={rawOffset === 0}
+                  onClick={() => setSelectedIndex(index)}
+                  onStart={() => selectCareer(career.id)}
+                />
               </div>
             );
           })}
